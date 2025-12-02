@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ブログサイト</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+    }
+
+    /* 左右広告 + 中央の3カラムレイアウト */
+    .layout {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 20px;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    /* 左右広告スペース */
+    .side-ad {
+        width: 160px;
+        display: flex;
+        justify-content: center;
+    }
+
+    /* 広告枠 */
+    .ad-box {
+        width: 160px;
+        height: 600px;
+        background: #111;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: white;
+        font-size: 14px;
+        display: flex;
+        justify-content: center;
+        padding-top: 10px;
+    }
+
+    /* 真ん中の本体コンテンツ */
+    .main-content {
+        max-width: 1000px;
+        width: 100%;
+    }
+
+    /* 上のロゴ */
+    .logo {
+        width: 200px;
+        margin: 0 auto 20px;
+        display: block;
+    }
+
+    /* ギャラリー全体 */
+    .gallery {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        padding: 20px;
+    }
+
+    /* サムネ画像 */
+    .item img {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .item img:hover {
+        transform: scale(1.05);
+    }
+
+    /* 画像下のタイトル */
+    .item p {
+        margin-top: 8px;
+        font-size: 16px;
+    }
+
+    /* スマホ（広告非表示＋2列） */
+    @media (max-width: 900px) {
+        .side-ad {
+            display: none;
+        }
+        .gallery {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* さらに小さい画面（1列） */
+    @media (max-width: 500px) {
+        .gallery {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- 左広告 -->
+    <div class="side-ad">
+        <div class="ad-box">
+            <!-- 左広告コード入れてOK -->
+            広告
+        </div>
+    </div>
+
+    <!-- 中央の本体 -->
+    <div class="main-content">
+
+        <!-- 上のロゴ -->
+        <img src="nzws.png" class="logo">
+
+        <!-- ギャラリー -->
+        <div class="gallery">
+
+            <!-- 1～16（ここは例として4つだけ書く。以下同じ形式で増える） -->
+            <div class="item">
+                <a href="page1.html"><img src="thumb1.jpg"></a>
+                <p>タイトル1</p>
+            </div>
+
+            <div class="item">
+                <a href="page2.html"><img src="thumb2.jpg"></a>
+                <p>タイトル2</p>
+            </div>
+
+
+
+        </div>
+    </div>
+
+    <!-- 右広告 -->
+    <div class="side-ad">
+        <div class="ad-box">
+            <!-- 右広告コード -->
+            広告
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
