@@ -10,29 +10,105 @@
         margin: 0;
         padding: 0;
         background: #000;
+        background-image: url('haikei.jpg');
+        background-size: cover;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
         color: white;
         font-family: Arial, sans-serif;
         text-align: center;
     }
 
-    /* 左右広告 + 中央の3カラムレイアウト */
+    .logo {
+        width: 200px;
+        margin: 15px auto 5px;
+        display: block;
+    }
+
+    .subtitle {
+        color: white;
+        background: rgba(0,0,0,0.5);
+        display: inline-block;
+        padding: 6px 12px;
+        font-size: 18px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+    }
+
+    .genre-menu {
+        width: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        padding: 12px 0;
+        border-bottom: 2px solid #222;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .genre-menu div {
+        padding: 6px 14px;
+        cursor: pointer;
+        background: #222;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    .genre-menu div:hover,
+    .genre-menu .active {
+        background: #444;
+    }
+
+    .search-box {
+        margin-top: 15px;
+        margin-bottom: 5px;
+    }
+
+    .search-input {
+        width: 200px;
+        height: 30px;
+        font-size: 16px;
+        border-radius: 6px;
+        border: none;
+        padding-left: 10px;
+        background: #888;
+        color: white;
+    }
+
+    .search-button {
+        height: 32px;
+        font-size: 16px;
+        border: none;
+        color: white;
+        background: #444;
+        border-radius: 6px;
+        cursor: pointer;
+        padding: 0 10px;
+        margin-left: 5px;
+    }
+
+    .search-button:hover {
+        background: #666;
+    }
+
     .layout {
         display: flex;
         justify-content: center;
         align-items: flex-start;
         gap: 20px;
         width: 100%;
-        margin-top: 20px;
+        margin-top: 10px;
     }
 
-    /* 左右広告スペース */
     .side-ad {
         width: 160px;
         display: flex;
         justify-content: center;
     }
 
-    /* 広告枠 */
     .ad-box {
         width: 160px;
         height: 600px;
@@ -46,49 +122,80 @@
         padding-top: 10px;
     }
 
-    /* 真ん中の本体コンテンツ */
     .main-content {
         max-width: 1000px;
         width: 100%;
+        margin: 0 auto;
     }
 
-    /* 上のロゴ */
-    .logo {
-        width: 200px;
-        margin: 0 auto 20px;
-        display: block;
+    .tag-list {
+        margin-top:10px;
+        display:flex;
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:10px;
+    }
+    .tag-item {
+        background:#222;
+        padding:6px 10px;
+        border-radius:6px;
+        cursor:pointer;
+        font-size:14px;
+    }
+    .tag-item:hover {
+        background:#555;
     }
 
-    /* ギャラリー全体 */
     .gallery {
         width: 100%;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 20px;
         padding: 20px;
+        justify-items: center;
     }
 
-    /* サムネ画像 */
+    .item a {
+        display: block;
+        width: 100%;
+        border: 1px solid #222;
+        background: rgba(0,0,0,0.8);
+        transition: 0.3s;
+        text-decoration: none;
+        color: white;
+        padding: 10px;
+    }
+
+    .item a:hover {
+        transform: scale(1.05);
+    }
+
     .item img {
         width: 100%;
         aspect-ratio: 16 / 9;
         object-fit: cover;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: 0.3s;
     }
 
-    .item img:hover {
-        transform: scale(1.05);
-    }
-
-    /* 画像下のタイトル */
     .item p {
         margin-top: 8px;
         font-size: 16px;
     }
 
-    /* スマホ（広告非表示＋2列） */
+    .info-box {
+        background: rgba(50,50,50,0.7);
+        color: white;
+        padding: 15px;
+        margin: 20px auto;
+        max-width: 800px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .info-box iframe {
+        margin-top: 15px;
+        border-radius: 8px;
+    }
+
     @media (max-width: 900px) {
         .side-ad {
             display: none;
@@ -98,7 +205,6 @@
         }
     }
 
-    /* さらに小さい画面（1列） */
     @media (max-width: 500px) {
         .gallery {
             grid-template-columns: 1fr;
@@ -108,64 +214,172 @@
 </head>
 <body>
 
-<div class="layout">
+<img src="NZWS.png" class="logo">
+<div class="subtitle">世界の不思議さがそう</div>
 
-    <!-- 左広告 -->
-    <div class="side-ad">
-        <div class="ad-box">
-            <!-- 左広告コード入れてOK -->
-            <!-- admax -->
-<script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
-<!-- admax -->
-        </div>
-    </div>
-
-    <!-- 中央の本体 -->
-    <div class="main-content">
-
-        <!-- 上のロゴ -->
-        <img src="NZWS.png" class="logo">
-
-        <!-- ギャラリー -->
-        <div class="gallery">
-
-            <!-- 1～16（ここは例として4つだけ書く。以下同じ形式で増える） -->
-            <div class="item">
-                <a href="1/1.html"><img src="https://theync.com/media/thumbs/6/9/2/d/b/2177685692db1e83f6a5.mp4/2177685692db1e83f6a5.mp4-9.jpg"></a>
-                <p>目隠しされた男性が成敗される
-            </div>
-
-            <div class="item">
-                <a href="1/2.html"><img src="https://theync.com/media/thumbs/6/9/3/1/2/5524336931266390496.mp4/5524336931266390496.mp4-3.jpg"></a>
-                <p>ブラジルのジムでバーベルが落下、男性が死亡</p>
-            </div>
-
-
-
-        </div>
-    </div>
-
-    <!-- 右広告 -->
-    <div class="side-ad">
-        <div class="ad-box">
-            <!-- 右広告コード -->
-          <!-- admax -->
-<script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
-<!-- admax -->
-        </div>
-    </div>
-
+<div class="genre-menu">
+    <div class="active" data-filter="all">新作</div>
+    <div data-filter="g">グロ</div>
+    <div data-filter="e">エロス</div>
+    <div data-filter="o">おもしろ</div>
+    <div data-filter="nzws" id="tagButton">NZWSについて</div>
 </div>
 
-<!-- admaxpc -->
-<script src="https://adm.shinobi.jp/s/b87206c3b1c3c9ec143771b1b6d9112c"></script>
-<!-- admax -->
-<!-- admax -->
-<script src="https://adm.shinobi.jp/s/19d211d5846bcb748ab45d7c3c323af4"></script>
-<!-- admax -->
-    
+<div class="search-box">
+    <input type="text" id="searchInput" class="search-input" placeholder="検索...">
+    <button id="searchBtn" class="search-button">GO</button>
+</div>
+
+<div class="tag-list" id="tagList"></div>
+
+<div class="info-box" id="nzwsInfo" style="display:none;">
+    <div>NakazawaWorldSearchで世界の不思議を届けたい！<br>
+    このサイトは世界の不思議がわかる教育サイトです<br>
+    連絡はこちらへ： nakazawaworldsearch@f5.si</div>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/Tv8V5p3EbW0?start=53" title="YouTube video" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<div class="layout">
+    <div class="side-ad">
+        <div class="ad-box">
+<script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="gallery">
+            <div class="item" data-page="1/1.html"></div>
+            <div class="item" data-page="1/2.html"></div>
+            <div class="item" data-page="1/3.html"></div>
+            <div class="item" data-page="1/4.html"></div>
+        </div>
+    </div>
+
+    <div class="side-ad">
+        <div class="ad-box">
+<script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const items = document.querySelectorAll(".item[data-page]");
+    const tabs = document.querySelectorAll(".genre-menu div");
+    const searchBtn = document.getElementById("searchBtn");
+    const searchInput = document.getElementById("searchInput");
+    const tagList = document.getElementById("tagList");
+    const nzwsInfo = document.getElementById("nzwsInfo");
+
+    let allData = [];
+    let allTags = new Set();
+
+    items.forEach(async item => {
+        const page = item.getAttribute("data-page");
+        try {
+            const response = await fetch(page);
+            const text = await response.text();
+            const doc = new DOMParser().parseFromString(text, "text/html");
+
+            const titleEl = doc.querySelector(".video-title");
+            const imgEl = doc.querySelector(".video-block a img");
+            const tagEl = doc.querySelector(".video-tag");
+            const descEl = doc.querySelector(".video-desc");
+
+            const title = titleEl ? titleEl.textContent.trim() : "No Title";
+            const desc = descEl ? descEl.textContent.trim() : "";
+            const imgSrc = imgEl ? imgEl.src : "NZWS.png";
+            const tag = tagEl ? tagEl.getAttribute("data-tag") : "none";
+
+            let tagFound = desc.match(/#([\wぁ-んァ-ン一-龥]+)/);
+            if(tagFound){
+                allTags.add(tagFound[1]);
+                item.setAttribute("data-tag2", tagFound[1]);
+            }
+
+            item.setAttribute("data-tag", tag);
+            item.setAttribute("data-title", title);
+            item.setAttribute("data-desc", desc);
+
+            item.innerHTML = `
+                <a href="${page}">
+                    <img src="${imgSrc}">
+                    <p>${title}</p>
+                </a>
+            `;
+
+            allData.push(item);
+
+        } catch (err) {
+            console.error("読み込み失敗:", page, err);
+        }
+    });
+
+    setTimeout(() => {
+        allTags.forEach(t => {
+            const btn = document.createElement("div");
+            btn.className = "tag-item";
+            btn.textContent = "#" + t;
+            btn.addEventListener("click", () => filterByTag(t));
+            tagList.appendChild(btn);
+        });
+    }, 1000);
+
+    function filterByTag(tag){
+        allData.forEach(el => {
+            if(el.getAttribute("data-tag2") === tag){
+                el.style.display = "block";
+            } else {
+                el.style.display = "none";
+            }
+        });
+        nzwsInfo.style.display = "none";
+        tabs.forEach(t => t.classList.remove("active"));
+    }
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+            const filter = tab.getAttribute("data-filter");
+
+            if(filter === "nzws"){
+                nzwsInfo.style.display = "block";
+                allData.forEach(el => el.style.display="none");
+                return;
+            } else {
+                nzwsInfo.style.display = "none";
+            }
+
+            allData.forEach(el => {
+                if (filter === "all" || el.getAttribute("data-tag") === filter) {
+                    el.style.display = "block";
+                } else if(filter !== "nzws") {
+                    el.style.display = "none";
+                }
+            });
+        });
+    });
+
+    searchBtn.addEventListener("click", () => {
+        const word = searchInput.value.trim();
+        if (!word) return;
+
+        allData.forEach(el => {
+            const title = el.getAttribute("data-title") || "";
+            const desc = el.getAttribute("data-desc") || "";
+            if (title.includes(word) || desc.includes(word)) {
+                el.style.display = "block";
+            } else {
+                el.style.display = "none";
+            }
+        });
+
+        nzwsInfo.style.display = "none";
+        tabs.forEach(t => t.classList.remove("active"));
+    });
+});
+</script>
+
 </body>
 </html>
-
-
-
