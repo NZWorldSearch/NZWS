@@ -17,6 +17,8 @@
         color: white;
         font-family: Arial, sans-serif;
         text-align: center;
+        overflow-x: hidden;
+        width: 100%;
     }
 
     .logo {
@@ -194,6 +196,10 @@
     .info-box iframe {
         margin-top: 15px;
         border-radius: 8px;
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
     }
 
     @media (max-width: 900px) {
@@ -202,6 +208,14 @@
         }
         .gallery {
             grid-template-columns: repeat(2, 1fr);
+        }
+        .info-box {
+            margin: 20px 10px;
+            padding: 10px;
+        }
+        .info-box iframe {
+            width: 100%;
+            height: auto;
         }
     }
 
@@ -236,7 +250,7 @@
     <div>NakazawaWorldSearchで世界の不思議を届けたい！<br>
     このサイトは世界の不思議がわかる教育サイトです<br>
     連絡はこちらへ： nakazawaworldsearch@f5.si</div>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/Tv8V5p3EbW0?start=53" title="YouTube video" frameborder="0" allowfullscreen></iframe>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/Tv8V5p3EbW0?start=53" title="YouTube video" frameborder="0" allowfullscreen style="max-width:100%;"></iframe>
 </div>
 
 <div class="layout">
@@ -247,14 +261,8 @@
     </div>
 
     <div class="main-content">
-        <div class="gallery">
-            <div class="item" data-page="1/7.html"></div>
-            <div class="item" data-page="1/6.html"></div>
-            <div class="item" data-page="1/5.html"></div>
-            <div class="item" data-page="1/4.html"></div>
-            <div class="item" data-page="1/1.html"></div>
-            <div class="item" data-page="1/2.html"></div>
-            <div class="item" data-page="1/3.html"></div>
+        <div class="gallery" id="gallery">
+            <!-- ここに自動生成されます -->
         </div>
     </div>
 
@@ -267,7 +275,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const items = document.querySelectorAll(".item[data-page]");
+    const gallery = document.getElementById("gallery");
     const tabs = document.querySelectorAll(".genre-menu div");
     const searchBtn = document.getElementById("searchBtn");
     const searchInput = document.getElementById("searchInput");
@@ -276,9 +284,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let allData = [];
     let allTags = new Set();
+    let fileNumbers = [];
+    let currentCheck = 1;
 
-    items.forEach(async item => {
-        const page = item.getAttribute("data-page");
+    // ファイルが存在するか確認しながら番号を収集
+    async function detectFiles() {
+        while (true) {
+            try {
+                const response = await fetch(`1/${currentCheck}.html`, { method: 'HEAD' });
+                if (response.ok) {
+                    fileNumbers.push(currentCheck);
+                    currentCheck++;
+                } else {
+                    break;
+                }
+            } catch {
+                break;
+            }
+        }
+
+        // 番号の大きい順に並べ替え（降順）
+        fileNumbers.sort((a, b) => b - a);
+
+        // 各ファイルを読み込み
+        fileNumbers.forEach(num => {
+            const page = `1/${num}.html`;
+            const item = document.createElement("div");
+            item.className = "item";
+            item.setAttribute("data-page", page);
+            gallery.appendChild(item);
+
+            loadItemData(item, page);
+        });
+    }
+
+    detectFiles();
+
+    async function loadItemData(item, page) {
         try {
             const response = await fetch(page);
             const text = await response.text();
@@ -289,15 +331,23 @@ document.addEventListener("DOMContentLoaded", () => {
             const tagEl = doc.querySelector(".video-tag");
             const descEl = doc.querySelector(".video-desc");
 
-            const title = titleEl ? titleEl.textContent.trim() : "No Title";
+            const title = titleEl ? titleEl.textContent.trim() : "近日公開";
             const desc = descEl ? descEl.textContent.trim() : "";
             const imgSrc = imgEl ? imgEl.src : "NZWS.png";
             const tag = tagEl ? tagEl.getAttribute("data-tag") : "none";
 
-            let tagFound = desc.match(/#([\wぁ-んァ-ン一-龥]+)/);
-            if(tagFound){
-                allTags.add(tagFound[1]);
-                item.setAttribute("data-tag2", tagFound[1]);
+            // タイトルがない場合は「近日公開」に
+            const displayTitle = (!title || title === "No Title") ? "近日公開" : title;
+
+            // 複数のハッシュタグを取得
+            let tagMatches = desc.matchAll(/#([\wぁ-んァ-ン一-龥]+)/g);
+            let tags = [];
+            for(let match of tagMatches){
+                allTags.add(match[1]);
+                tags.push(match[1]);
+            }
+            if(tags.length > 0){
+                item.setAttribute("data-tag2", tags.join(","));
             }
 
             item.setAttribute("data-tag", tag);
@@ -307,7 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
             item.innerHTML = `
                 <a href="${page}">
                     <img src="${imgSrc}">
-                    <p>${title}</p>
+                    <p>${displayTitle}</p>
                 </a>
             `;
 
@@ -316,7 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (err) {
             console.error("読み込み失敗:", page, err);
         }
-    });
+    }
 
     setTimeout(() => {
         allTags.forEach(t => {
@@ -330,7 +380,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function filterByTag(tag){
         allData.forEach(el => {
-            if(el.getAttribute("data-tag2") === tag){
+            const tags = el.getAttribute("data-tag2");
+            if(tags && tags.split(",").includes(tag)){
                 el.style.display = "block";
             } else {
                 el.style.display = "none";
@@ -380,11 +431,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         nzwsInfo.style.display = "none";
         tabs.forEach(t => t.classList.remove("active"));
+
     });
 });
 </script>
 
 </body>
 </html>
-
 
