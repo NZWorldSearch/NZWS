@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>NakazawaWorldSearch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin: 0;
+    background: url("haikei.jpg") no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+  }
+
+  .layout {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .side-ad {
+    width: 160px;
+    height: 600px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .main-content {
+    max-width: 900px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ←ここ修正：ロゴ固定サイズ */
+  .logo {
+    width: 200px;   /* 元の大きさ */
+    height: auto;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .video-block {
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 900px;
+    background: rgba(0,0,0,0.5);
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .video-title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .line {
+    width: 90%;
+    height: 2px;
+    background: #fff;
+    margin: 10px auto;
+  }
+
+  .video-block a img {
+    width: 100%;
+    max-width: 450px;
+    height: auto;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+
+  .video-desc {
+    font-size: 22px;
+    margin-top: 10px;
+    color: #f0f0f0;
+  }
+
+  .links {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .links a {
+    color: #49a1ff;
+    font-size: 20px;
+    margin: 10px 0;
+    text-decoration: none;
+  }
+
+  .links a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 900px) {
+    .layout {
+      flex-direction: column;
+      align-items: center;
+    }
+    .side-ad {
+      display: none;
+    }
+    .video-title { font-size: 26px; }
+    .video-desc { font-size: 18px; }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+  <div class="side-ad">
+    <script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
+  </div>
+
+  <div class="main-content">
+
+    <a href="https://nzworldsearch.github.io/NZWS/" target="_blank">
+      <img src="NZWS.png" class="logo" alt="logo">
+    </a>
+
+  <!-- ジャンル g e o  -->
+  <div class="video-tag" data-tag="o"></div>
+
+
+    <div class="video-block">
+                                   <!-- タイトル↓  -->
+      <div class="video-title">【バカ】腕を折るつもりが頭にヒットー</div>
+      <div class="line"></div>
+      <div class="click-hint">画像クリックで再生</div>
+               <!-- 動画リンク  -->
+      <a href="https://xn--3kqs23a.tokyo/wp-content/uploads/2024/05/gsP0oJ8gS8xAsjY3.mp4" target="_blank">
+                     <!-- サムネ↓  -->
+        <img src="https://事実.tokyo/wp-content/uploads/2024/05/exported_F7C9526C-C621-4988-914A-9905D6DC8D0C.jpeg" alt="video1">
+      </a>
+
+      <div class="line"></div>
+                                 <!-- 解説＆タグ  -->
+      <div class="video-desc">この方には悪いですが私の見たことある動画で一番面白いですｗｗｗｗｗｗカーーンｗｗｗｗ面白すぎるだろなんだよこの動画はｗｗｗｗｗ元から頭が悪そうですがさらに悪化したと思います#バカ</div>
+    </div>
+
+  <div style="text-align: center;">
+  <script src="https://adm.shinobi.jp/s/a9a816c8541888b4033a461969c74db7"></script>
+</div>
+
+    <div class="links">
+      <a href="https://example.com/link1" target="_blank">関連リンク1</a>
+      <a href="https://example.com/link2" target="_blank">関連リンク2</a>
+      <a href="https://nzworldsearch.github.io/NZWS/" target="_blank">ホームへ</a>
+    </div>
+
+
+
+</div>
+
+<script src="https://adm.shinobi.jp/s/b87206c3b1c3c9ec143771b1b6d9112c"></script>
+<script src="https://adm.shinobi.jp/s/19d211d5846bcb748ab45d7c3c323af4"></script>
+
+<script id="dsq-count-scr" src="//https-nzworldsearch-github-io.disqus.com/count.js" async></script>
+
+</body>
+</html>
+
+<script>
+  // ページ内の video-title を取得
+  const titleElement = document.querySelector(".video-title");
+
+  // 存在していれば document.title にセット
+  if (titleElement) {
+    document.title = titleElement.textContent.trim();
+  }
+
+</script>

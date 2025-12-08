@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>NakazawaWorldSearch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin: 0;
+    background: url("haikei.jpg") no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+  }
+
+  .layout {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .side-ad {
+    width: 160px;
+    height: 600px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .main-content {
+    max-width: 900px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ←ここ修正：ロゴ固定サイズ */
+  .logo {
+    width: 200px;   /* 元の大きさ */
+    height: auto;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .video-block {
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 900px;
+    background: rgba(0,0,0,0.5);
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .video-title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .line {
+    width: 90%;
+    height: 2px;
+    background: #fff;
+    margin: 10px auto;
+  }
+
+  .video-block a img {
+    width: 100%;
+    max-width: 450px;
+    height: auto;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+
+  .video-desc {
+    font-size: 22px;
+    margin-top: 10px;
+    color: #f0f0f0;
+  }
+
+  .links {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .links a {
+    color: #49a1ff;
+    font-size: 20px;
+    margin: 10px 0;
+    text-decoration: none;
+  }
+
+  .links a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 900px) {
+    .layout {
+      flex-direction: column;
+      align-items: center;
+    }
+    .side-ad {
+      display: none;
+    }
+    .video-title { font-size: 26px; }
+    .video-desc { font-size: 18px; }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+  <div class="side-ad">
+    <script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
+  </div>
+
+  <div class="main-content">
+
+    <a href="https://nzworldsearch.github.io/NZWS/" target="_blank">
+      <img src="NZWS.png" class="logo" alt="logo">
+    </a>
+
+  <!-- ジャンル g e o  -->
+  <div class="video-tag" data-tag="o"></div>
+
+
+    <div class="video-block">
+                                   <!-- タイトル↓  -->
+      <div class="video-title">格の違いを見せつけられる瞬間</div>
+      <div class="line"></div>
+      <div class="click-hint">画像クリックで再生</div>
+               <!-- 動画リンク  -->
+      <a href="https://packaged-media.redd.it/21drr6txufdf1/pb/m2-res_420p.mp4?m=DASHPlaylist.mpd&v=1&e=1765220400&s=485590d8726519c4beb858e980094d4b19490756" target="_blank">
+                     <!-- サムネ↓  -->
+        <img src="data:image/jpeg;base64,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" alt="video1">
+      </a>
+
+      <div class="line"></div>
+                                 <!-- 解説＆タグ  -->
+      <div class="video-desc">格の違いを見せつけられる瞬間ですね。これは痛い。#喧嘩</div>
+    </div>
+
+  <div style="text-align: center;">
+  <script src="https://adm.shinobi.jp/s/a9a816c8541888b4033a461969c74db7"></script>
+</div>
+
+    <div class="links">
+      <a href="https://example.com/link1" target="_blank">関連リンク1</a>
+      <a href="https://example.com/link2" target="_blank">関連リンク2</a>
+      <a href="https://nzworldsearch.github.io/NZWS/" target="_blank">ホームへ</a>
+    </div>
+
+
+
+</div>
+
+<script src="https://adm.shinobi.jp/s/b87206c3b1c3c9ec143771b1b6d9112c"></script>
+<script src="https://adm.shinobi.jp/s/19d211d5846bcb748ab45d7c3c323af4"></script>
+
+<script id="dsq-count-scr" src="//https-nzworldsearch-github-io.disqus.com/count.js" async></script>
+
+</body>
+</html>
+
+<script>
+  // ページ内の video-title を取得
+  const titleElement = document.querySelector(".video-title");
+
+  // 存在していれば document.title にセット
+  if (titleElement) {
+    document.title = titleElement.textContent.trim();
+  }
+
+</script>
