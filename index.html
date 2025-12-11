@@ -37,26 +37,37 @@
         border-radius: 5px;
     }
 
-    .genre-menu {
+    .top-bar {
         width: 100%;
-        background: rgba(0,0,0,0.7);
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        padding: 12px 0;
+        background: rgba(0,0,0,0.75);
+        padding: 10px 0 12px;
         border-bottom: 2px solid #222;
         position: sticky;
         top: 0;
-        z-index: 100;
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .genre-menu {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
     }
 
     .genre-menu div {
         padding: 6px 14px;
         cursor: pointer;
         background: #222;
-        border-radius: 5px;
+        border-radius: 6px;
         font-weight: bold;
         transition: 0.2s;
+        min-width: 80px;
+        text-align: center;
+        font-size: 20px;
     }
 
     .genre-menu div:hover,
@@ -65,13 +76,16 @@
     }
 
     .search-box {
-        margin-top: 15px;
-        margin-bottom: 5px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
     }
 
     .search-input {
         width: 200px;
-        height: 30px;
+        height: 32px;
         font-size: 16px;
         border-radius: 6px;
         border: none;
@@ -80,20 +94,47 @@
         color: white;
     }
 
+    .search-input::placeholder {
+        color: white;
+    }
+
     .search-button {
-        height: 32px;
+        height: 34px;
         font-size: 16px;
         border: none;
         color: white;
         background: #444;
         border-radius: 6px;
         cursor: pointer;
-        padding: 0 10px;
-        margin-left: 5px;
+        padding: 0 12px;
+        min-width: 80px;
     }
 
     .search-button:hover {
         background: #666;
+    }
+
+    .tag-list {
+        display:flex;
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:10px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .tag-item {
+        background:#222;
+        padding:6px 10px;
+        border-radius:6px;
+        cursor:pointer;
+        font-size:14px;
+        min-width:80px;
+        text-align:center;
+    }
+
+    .tag-item:hover {
+        background:#555;
     }
 
     .layout {
@@ -109,7 +150,12 @@
         width: 160px;
         display: flex;
         justify-content: center;
+        position: fixed;
+        top: 120px;
     }
+
+    .side-ad:first-of-type { left: 10px; }
+    .side-ad:last-of-type { right: 10px; }
 
     .ad-box {
         width: 160px;
@@ -122,30 +168,28 @@
         display: flex;
         justify-content: center;
         padding-top: 10px;
+        position: relative;
+    }
+
+    .close-ad {
+        position: absolute;
+        top: 4px;
+        left: 6px;
+        background: #333;
+        color: white;
+        border-radius: 50%;
+        font-size: 12px;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        cursor: pointer;
+        text-align: center;
     }
 
     .main-content {
         max-width: 1000px;
         width: 100%;
         margin: 0 auto;
-    }
-
-    .tag-list {
-        margin-top:10px;
-        display:flex;
-        flex-wrap:wrap;
-        justify-content:center;
-        gap:10px;
-    }
-    .tag-item {
-        background:#222;
-        padding:6px 10px;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:14px;
-    }
-    .tag-item:hover {
-        background:#555;
     }
 
     .gallery {
@@ -174,13 +218,36 @@
 
     .item img {
         width: 100%;
-        aspect-ratio: 16 / 9;
+        aspect-ratio: 16/9;
         object-fit: cover;
     }
 
     .item p {
         margin-top: 8px;
         font-size: 16px;
+    }
+
+    .genre-label {
+        margin-top:5px;
+        font-size:14px;
+        color:#ccc;
+    }
+
+    .tag-display {
+        margin-top:5px;
+        font-size:13px;
+        color:#8cf;
+        display:flex;
+        gap:6px;
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+
+    .tag-display div {
+        background:#113;
+        padding:3px 6px;
+        border-radius:4px;
+        cursor:pointer;
     }
 
     .info-box {
@@ -203,26 +270,14 @@
     }
 
     @media (max-width: 900px) {
-        .side-ad {
-            display: none;
-        }
-        .gallery {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        .info-box {
-            margin: 20px 10px;
-            padding: 10px;
-        }
-        .info-box iframe {
-            width: 100%;
-            height: auto;
-        }
+        .side-ad { display: none; }
+        .gallery { grid-template-columns: repeat(2, 1fr); }
+        .layout { justify-content: center; }
     }
 
     @media (max-width: 500px) {
-        .gallery {
-            grid-template-columns: 1fr;
-        }
+        .gallery { grid-template-columns: 1fr; }
+        .layout { justify-content: center; }
     }
 </style>
 </head>
@@ -231,41 +286,45 @@
 <img src="NZWS.png" class="logo">
 <div class="subtitle">世界の不思議さがそう</div>
 
-<div class="genre-menu">
-    <div class="active" data-filter="all">新作</div>
-    <div data-filter="g">グロ</div>
-    <div data-filter="e">エロス</div>
-    <div data-filter="o">おもしろ</div>
-    <div data-filter="nzws" id="tagButton">NZWSについて</div>
-</div>
+<div class="top-bar">
 
-<div class="search-box">
-    <input type="text" id="searchInput" class="search-input" placeholder="検索...">
-    <button id="searchBtn" class="search-button">GO</button>
+    <div class="genre-menu">
+        <div class="active" data-filter="all">新作</div>
+        <div data-filter="g">グロ</div>
+        <div data-filter="e">エロス</div>
+        <div data-filter="o">おもしろ</div>
+        <div data-filter="nzws" id="tagButton">NZWSについて</div>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="検索...">
+        <button id="searchBtn" class="search-button">GO</button>
+    </div>
+
 </div>
 
 <div class="tag-list" id="tagList"></div>
 
 <div class="info-box" id="nzwsInfo" style="display:none;">
-    <div>NakazawaWorldSearch NZWSは世界の現状 グロ エロ などをまとめたニュースサイトです。さあ世界の不思議を探そう！： nakazawaworldsearch@f5.si</div>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/Tv8V5p3EbW0?start=53" title="YouTube video" frameborder="0" allowfullscreen style="max-width:100%;"></iframe>
+    <div>NakazawaWorldSearch NZWSは世界の現状 グロ エロ などをまとめたニュースサイトです： nakazawaworldsearch@f5.si</div>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/Tv8V5p3EbW0?start=53" title="YouTube video" frameborder="0" allowfullscreen></iframe>
 </div>
 
 <div class="layout">
     <div class="side-ad">
         <div class="ad-box">
+            <div class="close-ad" onclick="this.parentElement.parentElement.style.display='none'">×</div>
 <script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
         </div>
     </div>
 
     <div class="main-content">
-        <div class="gallery" id="gallery">
-            <!-- ここに自動生成されます -->
-        </div>
+        <div class="gallery" id="gallery"></div>
     </div>
 
     <div class="side-ad">
         <div class="ad-box">
+            <div class="close-ad" onclick="this.parentElement.parentElement.style.display='none'">×</div>
 <script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
         </div>
     </div>
@@ -284,8 +343,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let allTags = new Set();
     let fileNumbers = [];
     let currentCheck = 1;
+    let activeTagFilter = null;
 
-    // ファイルが存在するか確認しながら番号を収集
     async function detectFiles() {
         while (true) {
             try {
@@ -301,10 +360,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // 番号の大きい順に並べ替え（降順）
         fileNumbers.sort((a, b) => b - a);
 
-        // 各ファイルを読み込み
         fileNumbers.forEach(num => {
             const page = `1/${num}.html`;
             const item = document.createElement("div");
@@ -334,16 +391,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const imgSrc = imgEl ? imgEl.src : "NZWS.png";
             const tag = tagEl ? tagEl.getAttribute("data-tag") : "none";
 
-            // タイトルがない場合は「近日公開」に
             const displayTitle = (!title || title === "No Title") ? "近日公開" : title;
 
-            // 複数のハッシュタグを取得
             let tagMatches = desc.matchAll(/#([\wぁ-んァ-ン一-龥]+)/g);
             let tags = [];
             for(let match of tagMatches){
                 allTags.add(match[1]);
                 tags.push(match[1]);
             }
+
             if(tags.length > 0){
                 item.setAttribute("data-tag2", tags.join(","));
             }
@@ -352,14 +408,39 @@ document.addEventListener("DOMContentLoaded", () => {
             item.setAttribute("data-title", title);
             item.setAttribute("data-desc", desc);
 
+            let tagHTML = "";
+            if(tags.length > 0){
+                tagHTML =
+                    `<div class="tag-display">` +
+                    tags.map(t => `<div data-hashtag="${t}">#${t}</div>`).join("") +
+                    `</div>`;
+            }
+
+            /* ★★★ あなたの命令どおりジャンル表示だけ変換 ★★★ */
+            let genreLabel = "";
+            if(tag === "g"){ genreLabel = `<div class="genre-label">ジャンル: グロ</div>`; }
+            else if(tag === "e"){ genreLabel = `<div class="genre-label">ジャンル: エロス</div>`; }
+            else if(tag === "o"){ genreLabel = `<div class="genre-label">ジャンル: おもしろ</div>`; }
+            else { genreLabel = `<div class="genre-label">ジャンル: ${tag}</div>`; }
+
             item.innerHTML = `
                 <a href="${page}">
                     <img src="${imgSrc}">
                     <p>${displayTitle}</p>
+                    ${genreLabel}
+                    ${tagHTML}
                 </a>
             `;
 
             allData.push(item);
+
+            item.querySelectorAll(".tag-display div").forEach(tg => {
+                tg.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleTagFilter(tg.getAttribute("data-hashtag"));
+                });
+            });
 
         } catch (err) {
             console.error("読み込み失敗:", page, err);
@@ -371,12 +452,21 @@ document.addEventListener("DOMContentLoaded", () => {
             const btn = document.createElement("div");
             btn.className = "tag-item";
             btn.textContent = "#" + t;
-            btn.addEventListener("click", () => filterByTag(t));
+            btn.setAttribute("data-tagname", t);
+            btn.addEventListener("click", () => toggleTagFilter(t));
             tagList.appendChild(btn);
         });
     }, 1000);
 
-    function filterByTag(tag){
+    function toggleTagFilter(tag){
+        if(activeTagFilter === tag){
+            activeTagFilter = null;
+            resetFilter();
+            return;
+        }
+
+        activeTagFilter = tag;
+
         allData.forEach(el => {
             const tags = el.getAttribute("data-tag2");
             if(tags && tags.split(",").includes(tag)){
@@ -385,12 +475,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 el.style.display = "none";
             }
         });
+
+        nzwsInfo.style.display = "none";
+        tabs.forEach(t => t.classList.remove("active"));
+    }
+
+    function resetFilter(){
+        allData.forEach(el => el.style.display = "block");
+        activeTagFilter = null;
         nzwsInfo.style.display = "none";
         tabs.forEach(t => t.classList.remove("active"));
     }
 
     tabs.forEach(tab => {
         tab.addEventListener("click", () => {
+            activeTagFilter = null;
+
             tabs.forEach(t => t.classList.remove("active"));
             tab.classList.add("active");
             const filter = tab.getAttribute("data-filter");
@@ -417,6 +517,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const word = searchInput.value.trim();
         if (!word) return;
 
+        activeTagFilter = null;
+
         allData.forEach(el => {
             const title = el.getAttribute("data-title") || "";
             const desc = el.getAttribute("data-desc") || "";
@@ -429,11 +531,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         nzwsInfo.style.display = "none";
         tabs.forEach(t => t.classList.remove("active"));
-
     });
 });
 </script>
 
 </body>
 </html>
-
