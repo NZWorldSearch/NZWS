@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NZC</title>
+    <title>NZC Pro</title>
     <style>
-        /* 全体のスタイル設定（黒背景・赤文字）フォントを普通に変更 */
+        /* 全体のスタイル設定（黒背景・赤文字） */
         body {
             background-color: black;
             color: red;
-            font-family: sans-serif; /* 普通のフォント */
+            font-family: sans-serif;
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
+            overflow: hidden; /* スクロール禁止 */
             width: 100vw;
             height: 100vh;
-            box-sizing: border-box;
+            touch-action: manipulation; /* ダブルタップズーム防止 */
         }
 
         /* 共通UIパーツ */
@@ -24,21 +24,22 @@
             padding: 20px;
             box-sizing: border-box;
             width: 100%;
-            min-height: 100vh;
+            height: 100%;
+            overflow-y: auto;
         }
 
         .active { display: block; }
 
-        /* h1の枠を削除 */
         h1 {
             text-align: center;
             padding: 10px;
             margin-bottom: 20px;
             text-transform: uppercase;
             font-size: 2em;
+            letter-spacing: 5px;
         }
 
-        h2, h3 {
+        h2 {
             text-align: center;
             border: 2px solid red;
             padding: 10px;
@@ -55,6 +56,7 @@
             margin-bottom: 15px;
             cursor: pointer;
             font-family: inherit;
+            font-weight: bold;
         }
 
         button:active {
@@ -62,7 +64,7 @@
             color: black;
         }
 
-        input, select, textarea {
+        input, select {
             background: black;
             color: red;
             border: 1px solid red;
@@ -70,16 +72,13 @@
             width: 100%;
             margin-bottom: 10px;
             box-sizing: border-box;
-            font-family: inherit;
+            font-size: 1rem;
         }
 
-        /* ファイル選択インプットを隠す */
+        /* 隠しファイル入力 */
         #decrypt-input { display: none; }
 
-        /* メインメニュー */
-        #menu-screen { text-align: center; }
-
-        /* 撮影モード（真っ暗・フルスクリーン） */
+        /* 撮影モード（真っ暗・フルスクリーンレイヤー） */
         #camera-overlay {
             position: fixed;
             top: 0;
@@ -91,12 +90,15 @@
             display: none;
             cursor: none;
         }
+
+        /* 操作エリア（通常モード用） */
         #touch-video-area {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 50%;
+            z-index: 10000;
         }
         #touch-photo-area {
             position: absolute;
@@ -104,6 +106,19 @@
             left: 0;
             width: 100%;
             height: 50%;
+            z-index: 10000;
+        }
+
+        /* 処理用ビデオ要素（画面には出さないがレンダリングはさせる） */
+        #hidden-processing-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 1px;
+            height: 1px;
+            opacity: 0.01;
+            pointer-events: none;
+            z-index: -1;
         }
 
         /* プレビュー設定画面 */
@@ -111,45 +126,39 @@
             width: 100%;
             border: 1px solid red;
             margin-bottom: 10px;
-            transform: scaleX(1); /* ミラーリング防止の初期値 */
+            transform: scaleX(1);
         }
 
         /* フォルダ画面 */
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
         }
         .gallery-item {
             border: 1px solid red;
-            padding: 5px;
-            cursor: pointer;
+            aspect-ratio: 1 / 1;
             position: relative;
+            overflow: hidden;
         }
         .gallery-item.selected {
-            background: #300;
-            border: 2px solid white;
+            border: 3px solid white;
         }
         .gallery-item img, .gallery-item video {
             width: 100%;
-            height: 80px;
+            height: 100%;
             object-fit: cover;
         }
-        .gallery-info {
-            font-size: 0.7rem;
-            word-break: break-all;
-        }
 
-        /* 使用上の注意 */
         .disclaimer {
             margin-top: 20px;
             border: 3px double red;
             padding: 10px;
             font-weight: bold;
             text-align: center;
+            font-size: 0.8rem;
         }
 
-        /* 隠し要素 */
         #hidden-canvas { display: none; }
     </style>
 </head>
@@ -157,13 +166,17 @@
 
     <div id="menu-screen" class="screen active">
         <h1>NZC</h1>
-        <button onclick="startCameraMode()">開始</button>
+        <button onclick="startNormalMode()">開始</button>
+        <button onclick="startQuickVMode()">Quick V</button>
+        
+        <div style="height: 20px;"></div>
+        
         <button onclick="showSettings()">設定</button>
         <button onclick="showFolder()">フォルダ</button>
         <button onclick="showUsage()">使用方法</button>
         
-        <div style="margin-top: 30px; border-top: 1px solid red; padding-top: 20px;">
-            <button onclick="triggerDecrypt()">暗号化解除</button>
+        <div style="margin-top: 20px; border-top: 1px solid red; padding-top: 20px;">
+            <button onclick="triggerDecrypt()" style="font-size: 0.9rem;">暗号化解除</button>
             <input type="file" id="decrypt-input" onchange="decryptFile(this)">
         </div>
     </div>
@@ -173,22 +186,25 @@
         <div id="touch-photo-area"></div>
     </div>
 
+    <video id="hidden-processing-video" autoplay playsinline muted></video>
+
     <div id="settings-screen" class="screen">
-        <h2>設定 & プレビュー</h2>
+        <h2>設定</h2>
         <video id="preview-video" autoplay playsinline muted></video>
         
-        <label>画質/解像度:</label>
+        <label>画質:</label>
         <select id="quality-select" onchange="initCamera(true)">
             <option value="ideal">標準 (HD)</option>
             <option value="max">高画質 (FHD/4K)</option>
             <option value="low">低画質 (SD)</option>
         </select>
 
-        <label>カメラ切り替え:</label>
+        <label>カメラ:</label>
         <select id="camera-select" onchange="initCamera(true)"></select>
 
-        <label style="display:block; margin: 10px 0; cursor: pointer;">
-            <input type="checkbox" id="date-record-toggle" style="width:auto;"> 日付を記録する（ファイル名に反映）
+        <label style="display:block; margin: 15px 0; cursor: pointer; display: flex; align-items: center;">
+            <input type="checkbox" id="date-record-toggle" style="width:20px; height:20px; margin-right:10px;"> 
+            <span>ファイル名に日付を使用</span>
         </label>
 
         <button onclick="goHome()">戻る</button>
@@ -197,7 +213,7 @@
     <div id="folder-screen" class="screen">
         <h2>フォルダ</h2>
         <div style="margin-bottom: 10px; display: flex; gap: 5px;">
-            <button onclick="downloadSelected(false)" style="flex: 1; font-size:0.8rem;">保存 (.jpg/.mp4)</button>
+            <button onclick="downloadSelected(false)" style="flex: 1; font-size:0.8rem;">保存</button>
             <button onclick="downloadSelected(true)" style="flex: 1; font-size:0.8rem;">暗号化保存</button>
             <button onclick="deleteSelected()" style="flex: 1; font-size:0.8rem;">削除</button>
         </div>
@@ -208,411 +224,389 @@
 
     <div id="usage-screen" class="screen">
         <h2>使用方法</h2>
-        <div style="text-align: left; padding: 10px; border: 1px solid red;">
-            <p>1. <b>開始</b>: 画面が真っ暗になります。</p>
-            <ul>
-                <li>画面上半分タップ: 動画録画 開始/停止</li>
-                <li>画面下半分タップ: 写真撮影</li>
-                <li>終了するにはページを再読み込みしてください。</li>
-            </ul>
-            <p>2. <b>設定</b>: プレビュー、画質、日付記録(ファイル名用)、カメラ変更。</p>
-            <p>3. <b>フォルダ</b>: 撮影データの確認と保存。「日付記録」が有効な場合、保存時のファイル名が日付になります。</p>
-            <p>4. <b>暗号化保存</b>: ファイル名と拡張子がランダムになり、通常は開けなくなります。</p>
-            <p>5. <b>暗号化解除</b>: メニュー画面の「暗号化解除ファイルを読み込む」ボタンからファイルを指定すると復元されます。</p>
+        <div style="text-align: left; font-size: 0.9rem;">
+            <p><b>【開始】</b><br>
+            画面が真っ暗になります。<br>
+            ・上半分タップ/音量大: 動画録画 (短振動=開始, 長振動=停止)<br>
+            ・下半分タップ/音量小: 写真撮影 (短振動)</p>
+            
+            <p><b>【Quick V】</b><br>
+            押すと即座に真っ暗になり、<b>自動で録画開始</b>します。<br>
+            画面操作は無効です。<br>
+            終了するには再読み込みしてください。</p>
+            
+            <p><b>【chrome推奨】</b><br>
+            Safariやその他ブラウザの場合動作しない場合があります。</p>
         </div>
-        <div class="disclaimer">
-            盗撮目的の利用は厳禁です
-        </div>
+        <div class="disclaimer">悪用厳禁</div>
         <button onclick="goHome()">戻る</button>
     </div>
 
     <canvas id="hidden-canvas"></canvas>
 
     <script>
-        // --- データベース管理 (IndexedDB) ---
-        let db;
-        const DB_NAME = "NZC_App_DB_v2"; // バージョン変更
-        const DB_VERSION = 2;
+        // --- 設定・状態管理 ---
+        const DB_NAME = "NZC_DB_v3";
         const STORE_NAME = "media";
-
-        function initDB() {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
-            request.onupgradeneeded = (e) => {
-                db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
-                }
-            };
-            request.onsuccess = (e) => { db = e.target.result; loadGallery(); };
-            request.onerror = (e) => console.error("DB Error", e);
-        }
-
-        function saveMedia(blob, type, hasDate) {
-            const transaction = db.transaction([STORE_NAME], "readwrite");
-            const store = transaction.objectStore(STORE_NAME);
-            const data = {
-                type: type,
-                blob: blob,
-                timestamp: new Date().getTime(),
-                hasDate: hasDate,
-                dateStr: new Date().toLocaleString()
-            };
-            store.add(data);
-            transaction.oncomplete = () => {
-                console.log(`${type} saved`);
-                // 撮影成功の短いフィードバック（任意）
-                 alert(type === 'image' ? "撮影完了" : "録画保存完了");
-            };
-        }
-
-        // --- 変数管理 ---
+        let db;
+        
         let currentStream = null;
         let mediaRecorder = null;
         let recordedChunks = [];
         let isRecording = false;
+        let isQuickMode = false; // Quick Vモードフラグ
+
         let settings = {
             quality: 'ideal',
             deviceId: null,
             recordDate: false
         };
 
-        // --- ナビゲーション ---
+        // --- IndexedDB (保存機能) ---
+        function initDB() {
+            const request = indexedDB.open(DB_NAME, 2);
+            request.onupgradeneeded = (e) => {
+                db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+                }
+            };
+            request.onsuccess = (e) => { db = e.target.result; };
+        }
+
+        function saveMedia(blob, type) {
+            const transaction = db.transaction([STORE_NAME], "readwrite");
+            const store = transaction.objectStore(STORE_NAME);
+            store.add({
+                type: type,
+                blob: blob,
+                timestamp: Date.now(),
+                hasDate: document.getElementById('date-record-toggle').checked
+            });
+            // 通知（alert）は削除済み
+        }
+
+        // --- バイブレーション機能 ---
+        function vibrate(type) {
+            if (!navigator.vibrate) return;
+            if (type === 'short') navigator.vibrate(50); // 写真・録画開始
+            if (type === 'long') navigator.vibrate(800); // 録画終了
+        }
+
+        // --- 画面遷移とフルスクリーン ---
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
-        function goHome() { 
-            stopCamera(); 
-            showScreen('menu-screen'); 
-        }
-        function showSettings() { 
-            showScreen('settings-screen'); 
-            getCameras(); 
-            initCamera(true); 
-        }
-        function showFolder() { 
-            showScreen('folder-screen'); 
-            loadGallery(); 
-        }
-        function showUsage() { showScreen('usage-screen'); }
 
-        // --- カメラ機能 ---
+        function goHome() {
+            stopCamera();
+            showScreen('menu-screen');
+            document.getElementById('camera-overlay').style.display = 'none';
+            if (document.fullscreenElement) document.exitFullscreen().catch(e=>{});
+            isQuickMode = false;
+        }
+
+        async function enterFullScreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    await document.documentElement.requestFullscreen();
+                }
+            } catch (e) { console.log("Fullscreen blocked"); }
+        }
+
+        // --- カメラ初期化プロセス ---
         async function getCameras() {
             const select = document.getElementById('camera-select');
-            if (select.options.length > 0) return;
-
+            select.innerHTML = "";
             try {
-                // カメラ許可を先に求める
-                await navigator.mediaDevices.getUserMedia({ video: true });
                 const devices = await navigator.mediaDevices.enumerateDevices();
-                const videoDevices = devices.filter(device => device.kind === 'videoinput');
-                
-                videoDevices.forEach(device => {
-                    const option = document.createElement('option');
-                    option.value = device.deviceId;
-                    option.text = device.label || `Camera ${select.length + 1}`;
-                    select.appendChild(option);
+                const videoDevices = devices.filter(d => d.kind === 'videoinput');
+                videoDevices.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.deviceId;
+                    opt.text = d.label || `Camera ${select.length + 1}`;
+                    select.appendChild(opt);
                 });
-            } catch (e) {
-                console.error("カメラリスト取得エラー", e);
-            }
+            } catch (e) {}
         }
 
         async function initCamera(isPreview = false) {
-            stopCamera();
-            
+            stopCamera(); // 既存ストリーム停止
+
             settings.quality = document.getElementById('quality-select').value;
             settings.deviceId = document.getElementById('camera-select').value;
-            settings.recordDate = document.getElementById('date-record-toggle').checked;
 
-            // 解像度設定の簡略化（互換性向上）
-            let widthIdeal, heightIdeal;
-            if (settings.quality === 'max') { widthIdeal = 1920; heightIdeal = 1080; }
-            else if (settings.quality === 'low') { widthIdeal = 640; heightIdeal = 480; }
-            else { widthIdeal = 1280; heightIdeal = 720; }
+            let w, h;
+            if (settings.quality === 'max') { w = 1920; h = 1080; }
+            else if (settings.quality === 'low') { w = 640; h = 480; }
+            else { w = 1280; h = 720; }
 
             const constraints = {
                 video: {
                     deviceId: settings.deviceId ? { exact: settings.deviceId } : undefined,
-                    width: { ideal: widthIdeal },
-                    height: { ideal: heightIdeal },
-                    // デバイスID指定がない場合は背面カメラを優先
-                    facingMode: settings.deviceId ? undefined : 'environment' 
+                    width: { ideal: w },
+                    height: { ideal: h },
+                    facingMode: settings.deviceId ? undefined : 'environment'
                 },
                 audio: true
             };
 
             try {
                 currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                
                 if (isPreview) {
-                    const video = document.getElementById('preview-video');
-                    video.srcObject = currentStream;
-                    // フロントカメラのミラーリング補正（簡易的）
-                    const track = currentStream.getVideoTracks()[0];
-                    const settings = track.getSettings();
-                    video.style.transform = (settings.facingMode === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
+                    const v = document.getElementById('preview-video');
+                    v.srcObject = currentStream;
+                } else {
+                    // 本番用隠しビデオタグにセット
+                    const v = document.getElementById('hidden-processing-video');
+                    v.srcObject = currentStream;
+                    // 再生を確実に開始させる
+                    await v.play(); 
                 }
             } catch (err) {
-                console.error("Camera Error: ", err);
-                // フォールバック: 制約を緩めて再試行
-                try {
-                    console.log("Retrying with simpler constraints...");
-                    currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    if (isPreview) document.getElementById('preview-video').srcObject = currentStream;
-                } catch (retryErr) {
-                    alert("カメラの起動に失敗しました。");
-                }
+                alert("カメラ起動失敗: " + err.message);
             }
         }
 
         function stopCamera() {
             if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
+                currentStream.getTracks().forEach(t => t.stop());
                 currentStream = null;
             }
-            const hiddenVideo = document.getElementById('hidden-rec-video');
-            if (hiddenVideo) hiddenVideo.remove();
             isRecording = false;
         }
 
-        // --- 本番撮影モード（真っ暗） ---
-        async function startCameraMode() {
+        // --- モード制御 ---
+
+        // 1. 通常モード開始
+        async function startNormalMode() {
+            await enterFullScreen();
             await initCamera(false);
             if (!currentStream) return;
 
-            // 内部処理用Video要素
-            let hiddenVideo = document.getElementById('hidden-rec-video');
-            if (!hiddenVideo) {
-                hiddenVideo = document.createElement('video');
-                hiddenVideo.id = 'hidden-rec-video';
-                document.body.appendChild(hiddenVideo);
-            }
-            hiddenVideo.srcObject = currentStream;
-            hiddenVideo.autoplay = true;
-            hiddenVideo.muted = true;
-            hiddenVideo.playsInline = true;
-
-            // 映像の準備ができるまで待機（真っ黒対策）
-            await new Promise(resolve => {
-                if (hiddenVideo.readyState >= 2) resolve();
-                else hiddenVideo.onloadeddata = () => resolve();
-            });
-
             document.getElementById('camera-overlay').style.display = 'block';
+            isQuickMode = false;
             
-            // イベントリスナー設定（一度だけ）
+            // タッチイベント有効化
             document.getElementById('touch-video-area').onclick = toggleVideoRecord;
             document.getElementById('touch-photo-area').onclick = takePhoto;
+            
+            // 音量ボタンリスナー開始
+            window.addEventListener('keydown', handleVolumeKey);
         }
 
-        // 動画録画
-        function toggleVideoRecord() {
-            if (!currentStream || !currentStream.active) {
-                 alert("カメラエラー。再読み込みしてください。"); return;
-            }
+        // 2. Quick V モード開始
+        async function startQuickVMode() {
+            await enterFullScreen();
+            await initCamera(false);
+            if (!currentStream) return;
 
-            if (isRecording) {
-                mediaRecorder.stop(); // 停止 -> onstop発火
-            } else {
-                recordedChunks = [];
-                // mp4を優先的に試す（Chrome等では非対応でWebMになることが多い）
-                let options = { mimeType: 'video/mp4' };
-                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                    options.mimeType = 'video/webm;codecs=vp9';
-                    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                        options.mimeType = 'video/webm'; // 最終フォールバック
-                    }
-                }
-                
-                try {
-                    mediaRecorder = new MediaRecorder(currentStream, options);
-                } catch (e) {
-                    // オプション指定でコケた場合の最終手段
-                    mediaRecorder = new MediaRecorder(currentStream);
-                }
+            document.getElementById('camera-overlay').style.display = 'block';
+            isQuickMode = true;
 
-                mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) recordedChunks.push(e.data);
-                };
+            // タッチイベント無効化（何もしない関数を割り当て）
+            document.getElementById('touch-video-area').onclick = null;
+            document.getElementById('touch-photo-area').onclick = null;
 
-                mediaRecorder.onstop = () => {
-                    const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
-                    saveMedia(blob, 'video', settings.recordDate);
-                    isRecording = false;
-                    // ストリームは維持する
-                };
-
-                mediaRecorder.start();
-                isRecording = true;
-            }
+            // 自動録画開始
+            startVideo();
         }
 
-        // 写真撮影（修正：真っ黒対策、日付描画削除）
+        // --- 撮影機能 ---
+
+        // 写真撮影
         function takePhoto() {
-            const video = document.getElementById('hidden-rec-video');
-            if (!video || video.readyState < 2) return; // 準備できてなければ無視
+            // Quickモードなら無視
+            if (isQuickMode && isRecording) return; 
+
+            const video = document.getElementById('hidden-processing-video');
+            if (!video || video.readyState < 2) return;
 
             const canvas = document.getElementById('hidden-canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
-            
-            // 映像を描画（日付は書き込まない）
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            canvas.toBlob((blob) => {
-                if(blob) saveMedia(blob, 'image', settings.recordDate);
-            }, 'image/jpeg', 0.95);
+            ctx.drawImage(video, 0, 0);
+
+            canvas.toBlob(blob => {
+                if (blob) {
+                    saveMedia(blob, 'image');
+                    vibrate('short'); // 撮影時振動
+                }
+            }, 'image/jpeg', 0.9);
         }
 
-        // --- フォルダ & ギャラリー表示 ---
-        let selectedIds = new Set();
+        // 動画録画トグル
+        function toggleVideoRecord() {
+            if (isRecording) stopVideo();
+            else startVideo();
+        }
 
+        function startVideo() {
+            if (!currentStream) return;
+            recordedChunks = [];
+            
+            // MIMEタイプ決定
+            let mime = 'video/webm';
+            if (MediaRecorder.isTypeSupported('video/mp4')) mime = 'video/mp4';
+            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) mime = 'video/webm;codecs=vp9';
+
+            try {
+                mediaRecorder = new MediaRecorder(currentStream, { mimeType: mime });
+            } catch (e) {
+                mediaRecorder = new MediaRecorder(currentStream);
+            }
+
+            mediaRecorder.ondataavailable = e => {
+                if (e.data.size > 0) recordedChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
+                saveMedia(blob, 'video');
+                vibrate('long'); // 終了時 長振動
+            };
+
+            mediaRecorder.start();
+            isRecording = true;
+            vibrate('short'); // 開始時 短振動
+        }
+
+        function stopVideo() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                isRecording = false;
+            }
+        }
+
+        // --- 音量ボタンハック (実験的) ---
+        function handleVolumeKey(e) {
+            // Quickモード中は反応させない（あるいは停止させる？）
+            // 要望ではQuick Vは「どこ押しても反応しない」なので無視する
+            if (isQuickMode) return;
+
+            const k = e.key;
+            // 音量アップ -> 動画
+            if (k === 'AudioVolumeUp' || k === 'VolumeUp') {
+                e.preventDefault();
+                toggleVideoRecord();
+            }
+            // 音量ダウン -> 写真
+            else if (k === 'AudioVolumeDown' || k === 'VolumeDown') {
+                e.preventDefault();
+                takePhoto();
+            }
+        }
+
+        // --- ギャラリー・ダウンロードなど (UIロジック) ---
+        function showSettings() { showScreen('settings-screen'); getCameras(); initCamera(true); }
+        function showFolder() { showScreen('folder-screen'); loadGallery(); }
+        function showUsage() { showScreen('usage-screen'); }
+
+        let selectedIds = new Set();
         function loadGallery() {
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = "";
             selectedIds.clear();
-
-            const transaction = db.transaction([STORE_NAME], "readonly");
-            const store = transaction.objectStore(STORE_NAME);
-            const request = store.openCursor(null, 'prev');
-
-            request.onsuccess = (e) => {
+            const tx = db.transaction([STORE_NAME], "readonly");
+            const store = tx.objectStore(STORE_NAME);
+            store.openCursor(null, 'prev').onsuccess = e => {
                 const cursor = e.target.result;
                 if (cursor) {
                     const item = cursor.value;
                     const div = document.createElement('div');
                     div.className = 'gallery-item';
-                    div.onclick = () => toggleSelect(div, item.id);
-
-                    let label = item.type === 'image' ? '画像' : '動画';
-                    // 日付設定がONだった場合のみ日付表示
-                    let dateInfo = item.hasDate ? `<br>${item.dateStr}` : "";
-                    
-                    let mediaContent = "";
+                    div.onclick = () => {
+                        if (selectedIds.has(item.id)) {
+                            selectedIds.delete(item.id);
+                            div.classList.remove('selected');
+                        } else {
+                            selectedIds.add(item.id);
+                            div.classList.add('selected');
+                        }
+                    };
                     const url = URL.createObjectURL(item.blob);
-                    if (item.type === 'image') {
-                        mediaContent = `<img src="${url}" loading="lazy">`;
-                    } else {
-                        mediaContent = `<video src="${url}" preload="metadata"></video>`;
-                    }
-
-                    div.innerHTML = `${mediaContent}<div class="gallery-info">[${label}]${dateInfo}</div>`;
+                    if (item.type === 'image') div.innerHTML = `<img src="${url}">`;
+                    else div.innerHTML = `<video src="${url}"></video>`;
                     gallery.appendChild(div);
                     cursor.continue();
                 }
             };
         }
 
-        function toggleSelect(div, id) {
-            if (selectedIds.has(id)) {
-                selectedIds.delete(id);
-                div.classList.remove('selected');
-            } else {
-                selectedIds.add(id);
-                div.classList.add('selected');
-            }
-        }
-
         function deleteSelected() {
-            if (selectedIds.size === 0) return;
-            if (!confirm("選択した項目を削除しますか？")) return;
-            const transaction = db.transaction([STORE_NAME], "readwrite");
-            const store = transaction.objectStore(STORE_NAME);
+            if (!confirm("削除しますか？")) return;
+            const tx = db.transaction([STORE_NAME], "readwrite");
+            const store = tx.objectStore(STORE_NAME);
             selectedIds.forEach(id => store.delete(id));
-            transaction.oncomplete = () => { loadGallery(); alert("削除しました"); };
+            tx.oncomplete = loadGallery;
         }
 
-        // --- ダウンロード・暗号化 (修正：ファイル名と拡張子) ---
-        async function downloadSelected(encrypt) {
-            if (selectedIds.size === 0) return;
-            const transaction = db.transaction([STORE_NAME], "readonly");
-            const store = transaction.objectStore(STORE_NAME);
-            for (const id of selectedIds) {
-                store.get(id).onsuccess = (e) => {
+        function downloadSelected(encrypt) {
+            const tx = db.transaction([STORE_NAME], "readonly");
+            const store = tx.objectStore(STORE_NAME);
+            selectedIds.forEach(id => {
+                store.get(id).onsuccess = e => {
                     const item = e.target.result;
-                    encrypt ? downloadEncrypted(item) : downloadNormal(item);
+                    if (encrypt) downloadEncrypted(item);
+                    else downloadNormal(item);
                 };
+            });
+        }
+
+        function getFileName(item, ext) {
+            if (item.hasDate) {
+                const d = new Date(item.timestamp);
+                const p = n => n.toString().padStart(2,'0');
+                return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}.${ext}`;
+            } else {
+                return `${Math.random().toString(36).slice(2)}.${ext}`;
             }
         }
 
         function downloadNormal(item) {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(item.blob);
-            
-            // 拡張子の決定（動画は.mp4を強制、写真は.jpg）
-            const ext = item.type === 'image' ? 'jpg' : 'mp4';
-
-            // ファイル名の決定
-            let filename;
-            if (item.hasDate) {
-                // 日付有効: YYYYMMDD_HHmmss形式
-                const d = new Date(item.timestamp);
-                const pad = (n) => n.toString().padStart(2, '0');
-                filename = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-            } else {
-                // 日付無効: ランダムな名前
-                filename = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 10);
-            }
-
-            a.download = `${filename}.${ext}`;
-            document.body.appendChild(a);
+            a.download = getFileName(item, item.type === 'image' ? 'jpg' : 'mp4');
             a.click();
-            document.body.removeChild(a);
         }
 
-        // 簡易暗号化（変更なし）
         function downloadEncrypted(item) {
             const reader = new FileReader();
-            reader.onload = function() {
-                const secretData = {
+            reader.onload = () => {
+                const data = {
                     t: item.type === 'image' ? 'img' : 'vid',
-                    d: reader.result,
-                    s: Math.random().toString(36).substring(7)
+                    d: reader.result
                 };
-                const blob = new Blob([JSON.stringify(secretData)], {type: 'application/octet-stream'});
-                const randomName = Math.random().toString(36).substring(2, 15);
-                const randomExt = Math.random().toString(36).substring(2, 6);
+                const blob = new Blob([JSON.stringify(data)], {type:'application/octet-stream'});
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
-                a.download = `${randomName}.${randomExt}`;
-                document.body.appendChild(a);
+                a.download = Math.random().toString(36).slice(2) + ".dat";
                 a.click();
-                document.body.removeChild(a);
             };
             reader.readAsDataURL(item.blob);
         }
 
-        // --- 暗号化解除 UIと処理 ---
-        function triggerDecrypt() {
-            // 隠しファイル入力をクリック
-            document.getElementById('decrypt-input').click();
-        }
-
-        async function decryptFile(inputElement) {
-            if (inputElement.files.length === 0) return;
-            const file = inputElement.files[0];
+        // 暗号化解除
+        function triggerDecrypt() { document.getElementById('decrypt-input').click(); }
+        function decryptFile(input) {
+            if (!input.files[0]) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = e => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (data.t && data.d) {
-                        fetch(data.d).then(res => res.blob()).then(blob => {
-                            const a = document.createElement('a');
-                            a.href = URL.createObjectURL(blob);
-                            // 復元時の拡張子も.mp4/.jpgにする
-                            const ext = data.t === 'img' ? 'jpg' : 'mp4';
-                            a.download = `restored_${new Date().getTime()}.${ext}`;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            alert("暗号化解除成功。ダウンロードを確認してください。");
-                        });
-                    } else { alert("無効なファイルです。"); }
-                } catch (err) { alert("復号失敗。ファイルが破損しているか対象外です。"); }
-                inputElement.value = ''; // 入力リセット
+                    fetch(data.d).then(r=>r.blob()).then(blob => {
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = "restored_" + Date.now() + (data.t === 'img' ? '.jpg' : '.mp4');
+                        a.click();
+                    });
+                } catch(e) { alert("復元失敗"); }
+                input.value = '';
             };
-            reader.readAsText(file);
+            reader.readAsText(input.files[0]);
         }
 
         // 初期化
