@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NZC</title>
+
+<style>
+body {
+  margin: 0;
+  background: black;
+  color: red;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+h1 { margin: 10px 0; }
+
+button {
+  width: 90%;
+  margin: 10px auto;
+  padding: 15px;
+  font-size: 18px;
+  background: black;
+  color: red;
+  border: 2px solid red;
+}
+
+.hidden { display: none; }
+
+#fullscreen {
+  position: fixed;
+  inset: 0;
+  background: black;
+}
+
+.tap-zone { width: 100%; height: 50%; }
+
+#files {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+}
+
+.file-item {
+  border: 2px solid red;
+  padding: 5px;
+}
+
+.file-item img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+}
+
+.meta {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.selected {
+  background: red;
+  color: black;
+}
+</style>
+</head>
+<body>
+
+<h1>NZC</h1>
+
+<div id="menu">
+  <button onclick="startApp()">開始</button>
+  <button onclick="showInfo()">説明</button>
+  <button onclick="openSettings()">設定</button>
+  <button onclick="openFolder()">フォルダー</button>
+</div>
+
+<div id="info" class="hidden"></div>
+
+<div id="settings" class="hidden">
+  <video id="preview" autoplay playsinline></video>
+  <button onclick="switchCamera()">カメラ切り替え</button>
+  <button onclick="closeSettings()">戻る</button>
+</div>
+
+<div id="folder" class="hidden">
+  <h2>保存データ</h2>
+  <button onclick="selectAll()">全選択</button>
+  <div id="files"></div>
+  <button id="downloadBtn" class="hidden" onclick="downloadSelected()">選択ダウンロード</button>
+  <button id="deleteBtn" class="hidden" onclick="deleteSelected()">選択削除</button>
+  <button onclick="closeFolder()">戻る</button>
+</div>
+
+<div id="fullscreen" class="hidden">
+  <div class="tap-zone" onclick="toggleVideo()"></div>
+  <div class="tap-zone" onclick="takePhoto()"></div>
+</div>
+
+<script>
+let db = null;
+let stream = null;
+let cameraVideo = null;
+let recorder = null;
+let chunks = [];
+let facing = "environment";
+let selected = [];
+let currentFiles = [];
+
+/* ===== IndexedDB ===== */
+const openReq = indexedDB.open("NZC_DB", 1);
+
+openReq.onupgradeneeded = e => {
+  const d = e.target.result;
+  if (!d.objectStoreNames.contains("files")) {
+    d.createObjectStore("files", { keyPath: "id", autoIncrement: true });
+  }
+};
+
+openReq.onsuccess = e => { db = e.target.result; };
+openReq.onerror = () => alert("DB初期化失敗");
+
+/* ===== Utils ===== */
+function fmt(t){
+  const d = new Date(t);
+  const p = n => String(n).padStart(2,"0");
+  return `${d.getFullYear()}/${p(d.getMonth()+1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+/* ===== DB Ops ===== */
+function saveFile(blob, name, thumbBlob=null) {
+  if (!db) return;
+  const tx = db.transaction("files","readwrite");
+  tx.objectStore("files").add({
+    blob, name, thumb: thumbBlob, time: Date.now()
+  });
+}
+
+function loadFiles(cb){
+  if (!db) return;
+  const tx = db.transaction("files","readonly");
+  const st = tx.objectStore("files");
+  const req = st.openCursor();
+  const list=[];
+  req.onsuccess = e=>{
+    const c=e.target.result;
+    if(c){ list.push({id:c.key,...c.value}); c.continue(); }
+    else cb(list);
+  };
+}
+
+function deleteFile(id){
+  if(!db) return;
+  const tx=db.transaction("files","readwrite");
+  tx.objectStore("files").delete(id);
+}
+
+/* ===== Camera ===== */
+function getCamera(v){
+  return navigator.mediaDevices.getUserMedia({
+    video:{facingMode:facing}, audio:true
+  }).then(s=>{
+    stream=s; v.srcObject=s;
+  });
+}
+
+function startApp(){
+  document.documentElement.requestFullscreen();
+  document.getElementById("menu").classList.add("hidden");
+  document.getElementById("fullscreen").classList.remove("hidden");
+  cameraVideo=document.createElement("video");
+  cameraVideo.autoplay=true;
+  getCamera(cameraVideo);
+}
+
+function showInfo(){
+  const i=document.getElementById("info");
+  i.innerText="・上タップ：動画\n・下タップ：写真\n\n盗撮目的の使用は厳禁です";
+  i.classList.remove("hidden");
+}
+
+function openSettings(){
+  document.getElementById("settings").classList.remove("hidden");
+  getCamera(document.getElementById("preview"));
+}
+function closeSettings(){
+  document.getElementById("settings").classList.add("hidden");
+}
+function switchCamera(){
+  facing=facing==="environment"?"user":"environment";
+  getCamera(document.getElementById("preview"));
+}
+
+/* ===== Capture ===== */
+function takePhoto(){
+  if(!cameraVideo) return;
+  const c=document.createElement("canvas");
+  c.width=cameraVideo.videoWidth;
+  c.height=cameraVideo.videoHeight;
+  c.getContext("2d").drawImage(cameraVideo,0,0);
+  c.toBlob(b=>{ if(b) saveFile(b,`photo_${Date.now()}.png`); });
+}
+
+function makeVideoThumb(blob, cb){
+  const v=document.createElement("video");
+  v.muted=true;
+  v.src=URL.createObjectURL(blob);
+  v.onloadeddata=()=>{
+    const c=document.createElement("canvas");
+    c.width=v.videoWidth; c.height=v.videoHeight;
+    c.getContext("2d").drawImage(v,0,0);
+    c.toBlob(tb=>cb(tb),"image/png");
+  };
+}
+
+function toggleVideo(){
+  if(!recorder){
+    recorder=new MediaRecorder(stream);
+    recorder.ondataavailable=e=>chunks.push(e.data);
+    recorder.onstop=()=>{
+      const vb=new Blob(chunks,{type:"video/webm"});
+      makeVideoThumb(vb, tb=>{
+        saveFile(vb,`video_${Date.now()}.webm`, tb);
+      });
+      chunks=[]; recorder=null;
+    };
+    recorder.start();
+  }else recorder.stop();
+}
+
+/* ===== Folder ===== */
+function openFolder(){
+  if(!db){ alert("準備中"); return; }
+  selected=[]; currentFiles=[];
+  updateButtons();
+  const box=document.getElementById("files");
+  box.innerHTML="";
+  loadFiles(list=>{
+    currentFiles=list;
+    list.forEach(f=>{
+      const d=document.createElement("div");
+      d.className="file-item";
+      const img=document.createElement("img");
+      if(f.name.endsWith(".png")) img.src=URL.createObjectURL(f.blob);
+      else img.src=URL.createObjectURL(f.thumb);
+      const meta=document.createElement("div");
+      meta.className="meta";
+      meta.innerText=`${f.name}\n${fmt(f.time)}`;
+      d.onclick=()=>toggleSelect(d,f);
+      d.appendChild(img); d.appendChild(meta);
+      box.appendChild(d);
+    });
+  });
+  document.getElementById("folder").classList.remove("hidden");
+}
+
+function toggleSelect(el,f){
+  const i=selected.findIndex(x=>x.id===f.id);
+  if(i>=0){ selected.splice(i,1); el.classList.remove("selected"); }
+  else{ selected.push(f); el.classList.add("selected"); }
+  updateButtons();
+}
+function selectAll(){
+  selected=[...currentFiles];
+  document.querySelectorAll(".file-item").forEach(e=>e.classList.add("selected"));
+  updateButtons();
+}
+function updateButtons(){
+  document.getElementById("downloadBtn").classList.toggle("hidden",selected.length===0);
+  document.getElementById("deleteBtn").classList.toggle("hidden",selected.length===0);
+}
+function downloadSelected(){
+  selected.forEach(f=>{
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(f.blob);
+    a.download=f.name; a.click();
+  });
+}
+function deleteSelected(){
+  selected.forEach(f=>deleteFile(f.id));
+  openFolder();
+}
+function closeFolder(){
+  document.getElementById("folder").classList.add("hidden");
+}
+</script>
+
+</body>
+</html>
