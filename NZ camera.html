@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NZC Pro v2</title>
+    <title>NZC Pro v3</title>
     <style>
         /* 全体のスタイル設定（黒背景・赤文字） */
         body {
@@ -84,9 +84,6 @@
             font-size: 1rem;
         }
 
-        /* 隠しファイル入力 */
-        #decrypt-input { display: none; }
-
         /* 撮影モードレイヤー */
         #camera-overlay {
             position: fixed;
@@ -118,6 +115,28 @@
             z-index: 10000;
         }
 
+        /* 中央の点滅ライン（停止時フィードバック用） */
+        #flash-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: #444; /* 暗めのグレー */
+            z-index: 10005;
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* 点滅アニメーション定義 */
+        @keyframes flashAnim {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .flashing {
+            animation: flashAnim 0.3s ease-out forwards;
+        }
+
         /* Quick V 停止用エリア (画面上部 1/6) */
         #quick-v-stop-area {
             position: absolute;
@@ -126,7 +145,6 @@
             width: 100%;
             height: 16.66vh; /* 100% / 6 */
             z-index: 10001;
-            /* background: rgba(255, 0, 0, 0.2); デバッグ用可視化 */
             display: none;
         }
 
@@ -169,7 +187,7 @@
         }
         .gallery-item img, .gallery-item video {
             width: 100%;
-            height: 100%; /* ラベルがある分調整が必要だが簡易的に */
+            height: 100%;
             object-fit: cover;
             flex-grow: 1;
         }
@@ -230,18 +248,13 @@
         <button onclick="showSettings()">設定</button>
         <button onclick="showFolder()">フォルダ</button>
         <button onclick="showUsage()">使用方法</button>
-        
-        <div style="margin-top: 20px; border-top: 1px solid red; padding-top: 20px;">
-            <button onclick="triggerDecrypt()" style="font-size: 0.9rem;">暗号化解除</button>
-            <input type="file" id="decrypt-input" onchange="decryptFile(this)">
-        </div>
     </div>
 
     <div id="camera-overlay">
         <div id="quick-v-stop-area"></div>
         <div id="touch-video-area"></div>
         <div id="touch-photo-area"></div>
-    </div>
+        <div id="flash-line"></div> </div>
 
     <div id="preview-modal">
         <div id="preview-container" style="width:100%; text-align:center;"></div>
@@ -264,10 +277,17 @@
         <label>カメラ:</label>
         <select id="camera-select" onchange="initCamera(true)"></select>
 
-        <label style="display:block; margin: 15px 0; cursor: pointer; display: flex; align-items: center;">
-            <input type="checkbox" id="date-record-toggle" style="width:20px; height:20px; margin-right:10px;"> 
-            <span>ファイル名・表示に日付を使用</span>
-        </label>
+        <div style="margin-top: 15px; border-top: 1px solid #330000; padding-top: 10px;">
+            <label style="display:block; margin: 10px 0; cursor: pointer; display: flex; align-items: center;">
+                <input type="checkbox" id="date-record-toggle" style="width:20px; height:20px; margin-right:10px;"> 
+                <span>ファイル名・表示に日付を使用</span>
+            </label>
+
+            <label style="display:block; margin: 10px 0; cursor: pointer; display: flex; align-items: center;">
+                <input type="checkbox" id="fullscreen-toggle" checked style="width:20px; height:20px; margin-right:10px;"> 
+                <span>自動フルスクリーン有効</span>
+            </label>
+        </div>
 
         <button onclick="goHome()">戻る</button>
     </div>
@@ -276,8 +296,7 @@
         <h2>フォルダ</h2>
         <div style="margin-bottom: 10px; display: flex; gap: 5px; flex-wrap: wrap;">
             <button onclick="toggleSelectAll()" style="flex: 1; font-size:0.8rem; min-width: 80px;">全選択</button>
-            <button onclick="downloadSelected(false)" style="flex: 1; font-size:0.8rem; min-width: 60px;">保存</button>
-            <button onclick="downloadSelected(true)" style="flex: 1; font-size:0.8rem; min-width: 60px;">暗号化</button>
+            <button onclick="downloadSelected()" style="flex: 1; font-size:0.8rem; min-width: 60px;">保存</button>
             <button onclick="deleteSelected()" style="flex: 1; font-size:0.8rem; min-width: 60px;">削除</button>
         </div>
         <button id="btn-preview-single" onclick="previewSelected()" style="display:none; margin-bottom:10px; background:#330000;">プレビュー</button>
@@ -292,19 +311,16 @@
         <div style="text-align: left; font-size: 0.9rem;">
             <p><b>【開始】</b><br>
             画面が真っ暗になります。<br>
-            ・上半分タップ: 動画録画 (短振動=開始, 長振動=停止)<br>
+            ・上半分タップ: 動画録画 (短振動=開始, 長振動+中央点滅=停止)<br>
             ・下半分タップ: 写真撮影 (短振動)</p>
             
             <p><b>【Quick V】</b><br>
             押すと即座に真っ暗になり、<b>自動で録画開始</b>します。<br>
-            画面操作は基本的に無効ですが、<br>
-            <b>「画面の最上部(1/6)」をタップすると停止・終了</b>し、アプリが再読み込みされます。</p>
+            <b>「画面の最上部(1/6)」をタップすると停止・終了</b>し、リロードされます。</p>
             
             <p><b>【フォルダ】</b><br>
-            ・画像は「画像」、動画は「動画」と表示。<br>
             ・設定で日付ONの場合、撮影日時を表示。<br>
-            ・1つだけ選択時「プレビュー」ボタン出現。<br>
-            ・暗号化保存した動画も復元可能。</p>
+            ・1つだけ選択時「プレビュー」ボタン出現。</p>
         </div>
         <div class="disclaimer">悪用厳禁</div>
         <button onclick="goHome()">戻る</button>
@@ -314,7 +330,7 @@
 
     <script>
         // --- 設定・状態管理 ---
-        const DB_NAME = "NZC_DB_v4"; // バージョンアップ
+        const DB_NAME = "NZC_DB_v4";
         const STORE_NAME = "media";
         let db;
         
@@ -327,7 +343,8 @@
         let settings = {
             quality: 'ideal',
             deviceId: null,
-            recordDate: false
+            recordDate: false,
+            enableFullscreen: true
         };
 
         // --- IndexedDB (保存機能) ---
@@ -350,7 +367,7 @@
                 blob: blob,
                 timestamp: Date.now(),
                 hasDate: document.getElementById('date-record-toggle').checked,
-                mime: blob.type // MIMEタイプを明示的に保存
+                mime: blob.type
             });
         }
 
@@ -377,6 +394,9 @@
         }
 
         async function enterFullScreen() {
+            // 設定で無効なら実行しない
+            if (!document.getElementById('fullscreen-toggle').checked) return;
+
             try {
                 if (!document.fullscreenElement) {
                     await document.documentElement.requestFullscreen();
@@ -521,8 +541,21 @@
         }
 
         function toggleVideoRecord() {
-            if (isRecording) stopVideo();
-            else startVideo();
+            if (isRecording) {
+                stopVideo();
+                
+                // --- 中央ライン点滅エフェクト (通常モード停止時) ---
+                if (!isQuickMode) {
+                    const line = document.getElementById('flash-line');
+                    // アニメーションをリセットして再生
+                    line.classList.remove('flashing');
+                    void line.offsetWidth; // リフロー発生
+                    line.classList.add('flashing');
+                }
+            }
+            else {
+                startVideo();
+            }
         }
 
         function startVideo() {
@@ -544,7 +577,6 @@
             };
 
             mediaRecorder.onstop = () => {
-                // ここでBlob生成時に元のmimeTypeを指定
                 const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
                 saveMedia(blob, 'video');
                 vibrate('long');
@@ -603,18 +635,15 @@
 
                     const url = URL.createObjectURL(item.blob);
                     
-                    // コンテンツ表示
                     let contentHtml = "";
                     if (item.type === 'image') contentHtml = `<img src="${url}">`;
                     else contentHtml = `<video src="${url}"></video>`;
 
-                    // メタデータ（日付・種類）作成
                     let typeLabel = item.type === 'image' ? '画像' : '動画';
                     let dateLabel = "";
                     
                     if (item.hasDate) {
                         const d = new Date(item.timestamp);
-                        // 日付フォーマット YYYY/MM/DD HH:MM
                         const p = n => n.toString().padStart(2,'0');
                         dateLabel = `<br>${d.getFullYear()}/${p(d.getMonth()+1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
                     }
@@ -640,7 +669,6 @@
 
         function toggleSelectAll() {
             const items = document.querySelectorAll('.gallery-item');
-            // すべて選択済みなら全解除、そうでなければ全選択
             if (selectedIds.size === allItemIds.length) {
                 selectedIds.clear();
                 items.forEach(div => div.classList.remove('selected'));
@@ -685,7 +713,7 @@
 
         function closePreview() {
             const container = document.getElementById('preview-container');
-            container.innerHTML = ""; // Stop video playback
+            container.innerHTML = ""; 
             document.getElementById('preview-modal').style.display = 'none';
         }
 
@@ -698,15 +726,13 @@
             tx.oncomplete = loadGallery;
         }
 
-        function downloadSelected(encrypt) {
+        function downloadSelected() {
             if (selectedIds.size === 0) return;
             const tx = db.transaction([STORE_NAME], "readonly");
             const store = tx.objectStore(STORE_NAME);
             selectedIds.forEach(id => {
                 store.get(id).onsuccess = e => {
-                    const item = e.target.result;
-                    if (encrypt) downloadEncrypted(item);
-                    else downloadNormal(item);
+                    downloadNormal(e.target.result);
                 };
             });
         }
@@ -724,70 +750,11 @@
         function downloadNormal(item) {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(item.blob);
-            // item.mimeから拡張子を推測、もしくはデフォルト
             let ext = item.type === 'image' ? 'jpg' : 'mp4';
             if (item.type === 'video' && item.mime && item.mime.includes('webm')) ext = 'webm';
             
             a.download = getFileName(item, ext);
             a.click();
-        }
-
-        function downloadEncrypted(item) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const data = {
-                    t: item.type === 'image' ? 'img' : 'vid',
-                    m: item.mime || item.blob.type, // MIMEタイプを保存
-                    d: reader.result
-                };
-                const blob = new Blob([JSON.stringify(data)], {type:'application/octet-stream'});
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = Math.random().toString(36).slice(2) + ".dat";
-                a.click();
-            };
-            reader.readAsDataURL(item.blob);
-        }
-
-        // --- 暗号化解除 ---
-        function triggerDecrypt() { document.getElementById('decrypt-input').click(); }
-        function decryptFile(input) {
-            if (!input.files[0]) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    
-                    // fetchを使わず、Base64から直接Blobを生成（大容量ファイル対策・破損防止）
-                    fetch(data.d)
-                        .then(res => res.blob())
-                        .then(blob => {
-                            // 保存されていたMIMEタイプを適用してBlobを再生成
-                            const correctBlob = new Blob([blob], { type: data.m });
-                            
-                            const a = document.createElement('a');
-                            a.href = URL.createObjectURL(correctBlob);
-                            
-                            let ext = '.bin';
-                            if (data.t === 'img') ext = '.jpg';
-                            else {
-                                // MIMEタイプから拡張子決定
-                                if (data.m && data.m.includes('mp4')) ext = '.mp4';
-                                else if (data.m && data.m.includes('webm')) ext = '.webm';
-                                else ext = '.mp4';
-                            }
-
-                            a.download = "restored_" + Date.now() + ext;
-                            a.click();
-                        });
-
-                } catch(e) { 
-                    alert("復元失敗: ファイルが壊れているか形式が違います"); 
-                    console.error(e);
-                }
-                input.value = '';
-            };
-            reader.readAsText(input.files[0]);
         }
 
         window.onload = initDB;
