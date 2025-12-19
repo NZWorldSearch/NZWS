@@ -21,6 +21,8 @@
         width: 100%;
     }
 
+    /* 全画面ロード画面（#initial-loading）は削除しました */
+
     .logo {
         width: 200px;
         margin: 15px auto 5px;
@@ -269,6 +271,17 @@
         aspect-ratio: 16 / 9;
     }
 
+    /* 一番下にだけ表示されるメッセージ */
+    #scroll-loading-msg {
+        color: #fff;
+        font-size: 20px;
+        font-weight: bold;
+        padding: 40px 0;
+        display: none; 
+        width: 100%;
+        clear: both;
+    }
+
     @media (max-width: 900px) {
         .side-ad { display: none; }
         .gallery { grid-template-columns: repeat(2, 1fr); }
@@ -287,7 +300,6 @@
 <div class="subtitle">世界の不思議さがそう</div>
 
 <div class="top-bar">
-
     <div class="genre-menu">
         <div class="active" data-filter="all">新作</div>
         <div data-filter="g">グロ</div>
@@ -300,7 +312,6 @@
         <input type="text" id="searchInput" class="search-input" placeholder="検索...">
         <button id="searchBtn" class="search-button">GO</button>
     </div>
-
 </div>
 
 <div class="tag-list" id="tagList"></div>
@@ -314,37 +325,45 @@
     <div class="side-ad">
         <div class="ad-box">
             <div class="close-ad" onclick="this.parentElement.parentElement.style.display='none'">×</div>
-<script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
+            <script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
         </div>
     </div>
 
     <div class="main-content">
         <div class="gallery" id="gallery"></div>
+        <div id="scroll-loading-msg">読み込み中...</div>
     </div>
 
     <div class="side-ad">
         <div class="ad-box">
             <div class="close-ad" onclick="this.parentElement.parentElement.style.display='none'">×</div>
-<script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
+            <script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"></script>
         </div>
     </div>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const gallery = document.getElementById("gallery");
     const tabs = document.querySelectorAll(".genre-menu div");
     const searchBtn = document.getElementById("searchBtn");
     const searchInput = document.getElementById("searchInput");
     const tagList = document.getElementById("tagList");
     const nzwsInfo = document.getElementById("nzwsInfo");
+    const scrollMsg = document.getElementById("scroll-loading-msg");
 
     let allData = [];
     let allTags = new Set();
     let fileNumbers = [];
     let currentCheck = 1;
     let activeTagFilter = null;
+    let currentActiveFilter = "all";
 
+    let displayedCount = 0;
+    const itemsPerPage = 16;
+    let isBatchLoading = false;
+
+    // ファイル検知
     async function detectFiles() {
         while (true) {
             try {
@@ -352,28 +371,43 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (response.ok) {
                     fileNumbers.push(currentCheck);
                     currentCheck++;
-                } else {
-                    break;
-                }
-            } catch {
-                break;
-            }
+                } else { break; }
+            } catch { break; }
         }
-
         fileNumbers.sort((a, b) => b - a);
+    }
 
-        fileNumbers.forEach(num => {
+    async function loadNextBatch() {
+        if (isBatchLoading || displayedCount >= fileNumbers.length) return;
+        
+        isBatchLoading = true;
+        scrollMsg.style.display = "block"; // 下部の読み込み中を表示
+
+        // 読み込み中をあえて0.5秒見せる
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const nextBatch = fileNumbers.slice(displayedCount, displayedCount + itemsPerPage);
+        
+        const promises = nextBatch.map(async (num) => {
             const page = `1/${num}.html`;
             const item = document.createElement("div");
             item.className = "item";
             item.setAttribute("data-page", page);
+            item.style.display = "none"; 
             gallery.appendChild(item);
-
-            loadItemData(item, page);
+            
+            await loadItemData(item, page);
+            applyFilterToItem(item); 
         });
-    }
 
-    detectFiles();
+        await Promise.all(promises);
+        
+        displayedCount += nextBatch.length;
+        isBatchLoading = false;
+        scrollMsg.style.display = "none"; // 終わったら非表示
+        
+        updateTagListUI();
+    }
 
     async function loadItemData(item, page) {
         try {
@@ -399,29 +433,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 allTags.add(match[1]);
                 tags.push(match[1]);
             }
-
-            if(tags.length > 0){
-                item.setAttribute("data-tag2", tags.join(","));
-            }
+            if(tags.length > 0) item.setAttribute("data-tag2", tags.join(","));
 
             item.setAttribute("data-tag", tag);
             item.setAttribute("data-title", title);
             item.setAttribute("data-desc", desc);
 
-            let tagHTML = "";
-            if(tags.length > 0){
-                tagHTML =
-                    `<div class="tag-display">` +
-                    tags.map(t => `<div data-hashtag="${t}">#${t}</div>`).join("") +
-                    `</div>`;
-            }
+            let tagHTML = tags.length > 0 ? `<div class="tag-display">${tags.map(t => `<div data-hashtag="${t}">#${t}</div>`).join("")}</div>` : "";
 
-            /* ★★★ あなたの命令どおりジャンル表示だけ変換 ★★★ */
             let genreLabel = "";
-            if(tag === "g"){ genreLabel = `<div class="genre-label">ジャンル: グロ</div>`; }
-            else if(tag === "e"){ genreLabel = `<div class="genre-label">ジャンル: エロス</div>`; }
-            else if(tag === "o"){ genreLabel = `<div class="genre-label">ジャンル: おもしろ</div>`; }
-            else { genreLabel = `<div class="genre-label">ジャンル: ${tag}</div>`; }
+            if(tag === "g") genreLabel = `<div class="genre-label">ジャンル: グロ</div>`;
+            else if(tag === "e") genreLabel = `<div class="genre-label">ジャンル: エロス</div>`;
+            else if(tag === "o") genreLabel = `<div class="genre-label">ジャンル: おもしろ</div>`;
+            else genreLabel = `<div class="genre-label">ジャンル: ${tag}</div>`;
 
             item.innerHTML = `
                 <a href="${page}">
@@ -431,107 +455,82 @@ document.addEventListener("DOMContentLoaded", () => {
                     ${tagHTML}
                 </a>
             `;
-
             allData.push(item);
 
             item.querySelectorAll(".tag-display div").forEach(tg => {
                 tg.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                    e.preventDefault(); e.stopPropagation();
                     toggleTagFilter(tg.getAttribute("data-hashtag"));
                 });
             });
-
-        } catch (err) {
-            console.error("読み込み失敗:", page, err);
-        }
+        } catch (err) { console.error(err); }
     }
 
-    setTimeout(() => {
+    function updateTagListUI() {
+        tagList.innerHTML = "";
         allTags.forEach(t => {
             const btn = document.createElement("div");
             btn.className = "tag-item";
             btn.textContent = "#" + t;
-            btn.setAttribute("data-tagname", t);
             btn.addEventListener("click", () => toggleTagFilter(t));
             tagList.appendChild(btn);
         });
-    }, 1000);
-
-    function toggleTagFilter(tag){
-        if(activeTagFilter === tag){
-            activeTagFilter = null;
-            resetFilter();
-            return;
-        }
-
-        activeTagFilter = tag;
-
-        allData.forEach(el => {
-            const tags = el.getAttribute("data-tag2");
-            if(tags && tags.split(",").includes(tag)){
-                el.style.display = "block";
-            } else {
-                el.style.display = "none";
-            }
-        });
-
-        nzwsInfo.style.display = "none";
-        tabs.forEach(t => t.classList.remove("active"));
     }
 
-    function resetFilter(){
-        allData.forEach(el => el.style.display = "block");
-        activeTagFilter = null;
-        nzwsInfo.style.display = "none";
-        tabs.forEach(t => t.classList.remove("active"));
+    function applyFilterToItem(el) {
+        if (currentActiveFilter === "nzws") { el.style.display = "none"; return; }
+        const tag = el.getAttribute("data-tag");
+        const title = el.getAttribute("data-title") || "";
+        const desc = el.getAttribute("data-desc") || "";
+        const hashtags = el.getAttribute("data-tag2") ? el.getAttribute("data-tag2").split(",") : [];
+        const searchWord = searchInput.value.trim();
+        let visible = true;
+        if (activeTagFilter) visible = hashtags.includes(activeTagFilter);
+        else if (searchWord) visible = title.includes(searchWord) || desc.includes(searchWord);
+        else if (currentActiveFilter !== "all") visible = (tag === currentActiveFilter);
+        el.style.display = visible ? "block" : "none";
+    }
+
+    function toggleTagFilter(tag){
+        searchInput.value = "";
+        activeTagFilter = (activeTagFilter === tag) ? null : tag;
+        applyAllFilters();
+    }
+
+    function applyAllFilters(){
+        nzwsInfo.style.display = (currentActiveFilter === "nzws") ? "block" : "none";
+        allData.forEach(el => applyFilterToItem(el));
     }
 
     tabs.forEach(tab => {
         tab.addEventListener("click", () => {
             activeTagFilter = null;
-
+            searchInput.value = "";
             tabs.forEach(t => t.classList.remove("active"));
             tab.classList.add("active");
-            const filter = tab.getAttribute("data-filter");
-
-            if(filter === "nzws"){
-                nzwsInfo.style.display = "block";
-                allData.forEach(el => el.style.display="none");
-                return;
-            } else {
-                nzwsInfo.style.display = "none";
-            }
-
-            allData.forEach(el => {
-                if (filter === "all" || el.getAttribute("data-tag") === filter) {
-                    el.style.display = "block";
-                } else if(filter !== "nzws") {
-                    el.style.display = "none";
-                }
-            });
+            currentActiveFilter = tab.getAttribute("data-filter");
+            applyAllFilters();
         });
     });
 
     searchBtn.addEventListener("click", () => {
-        const word = searchInput.value.trim();
-        if (!word) return;
-
         activeTagFilter = null;
-
-        allData.forEach(el => {
-            const title = el.getAttribute("data-title") || "";
-            const desc = el.getAttribute("data-desc") || "";
-            if (title.includes(word) || desc.includes(word)) {
-                el.style.display = "block";
-            } else {
-                el.style.display = "none";
-            }
-        });
-
-        nzwsInfo.style.display = "none";
+        currentActiveFilter = "all";
         tabs.forEach(t => t.classList.remove("active"));
+        applyAllFilters();
     });
+
+    window.addEventListener("scroll", () => {
+        const scrollHeight = document.documentElement.scrollHeight;
+        const scrollPosition = window.innerHeight + window.pageYOffset;
+        if (scrollHeight - scrollPosition < 400) {
+            loadNextBatch();
+        }
+    });
+
+    // 最初にファイルをスキャンして16枚出す
+    await detectFiles();
+    await loadNextBatch(); 
 });
 </script>
 
