@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Button Sequence Lock</title>
+    <style>
+        /* 背景を真っ黒に設定 */
+        body {
+            background-color: black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        /* 3x3のグリッド設定 */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 全てのボタンの共通スタイル（赤枠） */
+        button {
+            background-color: transparent;
+            border: 2px solid red;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            outline: none;
+        }
+
+        button:active {
+            background-color: rgba(255, 0, 0, 0.4);
+        }
+
+        /* 一番下の独立したボタン */
+        .bottom-button {
+            width: 320px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-container">
+        <button onclick="checkButton('wrong')"></button>
+        <button onclick="checkButton('wrong')"></button>
+        <button onclick="checkButton('wrong')"></button>
+
+        <button onclick="checkButton('step3')"></button> <button onclick="checkButton('step4')"></button> <button onclick="checkButton('wrong')"></button>
+
+        <button onclick="checkButton('step2')"></button> <button onclick="checkButton('wrong')"></button>
+        <button onclick="checkButton('wrong')"></button>
+    </div>
+
+    <button class="bottom-button" onclick="checkButton('step1')"></button> <script>
+        // 正解の順番を管理する変数
+        let currentStep = 0;
+        const targetSequence = ['step1', 'step2', 'step3', 'step4'];
+
+        function checkButton(buttonId) {
+            if (buttonId === targetSequence[currentStep]) {
+                // 正解のボタンが押された場合
+                currentStep++;
+                
+                // 全ての順番が完了したらジャンプ
+                if (currentStep === targetSequence.length) {
+                    window.location.href = 'NZ camera.html';
+                }
+            } else {
+                // 間違ったボタン、または順番が違う場合はリセット
+                currentStep = 0;
+                console.log("順番が違います。リセットされました。");
+            }
+        }
+    </script>
+
+</body>
+</html>
