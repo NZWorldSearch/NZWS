@@ -20,9 +20,10 @@ input, select, textarea {
   border-radius: 6px;
   border: none;
   font-size: 16px;
+  box-sizing: border-box;
 }
 button {
-  margin-top: 25px;
+  margin-top: 15px;
   padding: 12px 20px;
   font-size: 18px;
   border-radius: 6px;
@@ -32,9 +33,31 @@ button {
   color: #fff;
 }
 button:hover { opacity:0.8; }
+.btn-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 25px;
+}
+.btn-next {
+  background: #22c55e;
+}
 .container {
   max-width: 600px;
   margin: auto;
+}
+.filename-display {
+  font-size: 22px;
+  font-weight: bold;
+  color: #28a5ff;
+  margin-top: 8px;
+}
+.section-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-top: 30px;
+  border-bottom: 2px solid #28a5ff;
+  padding-bottom: 6px;
 }
 </style>
 
@@ -44,8 +67,13 @@ button:hover { opacity:0.8; }
 <div class="container">
   <h1>NZWSえみゅ</h1>
 
-  <label>ファイル名（拡張子不要）</label>
-  <input id="filename" placeholder="example → myvideo">
+  <div class="section-title">📄 ファイル名</div>
+
+  <label>ファイル名（数字）</label>
+  <input id="filename" type="number" placeholder="例: 39" oninput="updateFilenameDisplay()">
+  <div class="filename-display" id="filenameDisplay">--.html</div>
+
+  <div class="section-title">📝 コンテンツ</div>
 
   <label>ジャンル</label>
   <select id="genre">
@@ -72,29 +100,33 @@ button:hover { opacity:0.8; }
   <label>関連リンク2</label>
   <input id="link2" placeholder="https://...">
 
-  <button onclick="generateHTML()">生成してダウンロード</button>
+  <div class="btn-row">
+    <button onclick="generateHTML()">⬇️ 生成してダウンロード</button>
+    <button class="btn-next" onclick="generateAndNext()">⬇️ 生成して次の番号へ</button>
+  </div>
 </div>
 
 
 <script>
-function generateHTML() {
-
-  const filename  = document.getElementById("filename").value.trim();
-  const genre     = document.getElementById("genre").value;
-  const title     = document.getElementById("title").value.trim();
-  const videoURL  = document.getElementById("video_url").value.trim();
-  const imageURL  = document.getElementById("image_url").value.trim();
-  const desc      = document.getElementById("desc").value.trim();
-
-  const link1     = document.getElementById("link1").value.trim();
-  const link2     = document.getElementById("link2").value.trim();
-
-  if (!filename || !title) {
-    alert("ファイル名とタイトルは必須です");
-    return;
+// ページ読み込み時にlocalStorageから番号を復元
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('nzws_last_filename');
+  if (saved) {
+    document.getElementById('filename').value = saved;
+    updateFilenameDisplay();
   }
+});
 
-  const template = `<!DOCTYPE html>
+function updateFilenameDisplay() {
+  const val = document.getElementById('filename').value.trim();
+  document.getElementById('filenameDisplay').textContent = val ? val + '.html' : '--.html';
+}
+
+function buildTemplate(title, genre, videoURL, imageURL, desc, link1, link2) {
+  // video urlがtwimg.comを含む場合はreferrerpolicyを追加
+  const videoATag = `<a href="${videoURL}" target="_blank" referrerpolicy="no-referrer">`;
+
+  return `<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -114,22 +146,8 @@ function generateHTML() {
   .layout {
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
-    margin-top: 20px;
-  }
-
-  .side-ad {
-    width: 160px;
-    height: 600px;
-    background: rgba(0,0,0,0.6);
-    border: 1px solid #333;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 14px;
-    display: flex;
-    justify-content: center;
     align-items: center;
+    margin-top: 20px;
   }
 
   .main-content {
@@ -207,9 +225,6 @@ function generateHTML() {
       flex-direction: column;
       align-items: center;
     }
-    .side-ad {
-      display: none;
-    }
     .video-title { font-size: 26px; }
     .video-desc { font-size: 18px; }
   }
@@ -219,13 +234,9 @@ function generateHTML() {
 <body>
 
 <div class="layout">
-  <div class="side-ad">
-    <script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"><\/script>
-  </div>
-
   <div class="main-content">
 
-    <a href="https://nzworldsearch.github.io/NZWS/" target="_blank">
+    <a href="https://nzworldsearch.github.io/NZWS/" target="_blank" referrerpolicy="no-referrer">
       <img src="NZWS.png" class="logo" alt="logo">
     </a>
 
@@ -236,7 +247,7 @@ function generateHTML() {
       <div class="line"></div>
       <div class="click-hint">画像クリックで再生</div>
 
-      <a href="${videoURL}" target="_blank">
+      ${videoATag}
         <img src="${imageURL}" alt="thumbnail">
       </a>
 
@@ -244,32 +255,59 @@ function generateHTML() {
       <div class="video-desc">${desc}</div>
     </div>
 
-  <div style="text-align: center;">
-  <script src="https://adm.shinobi.jp/s/a9a816c8541888b4033a461969c74db7"><\/script>
-</div>
-
     <div class="links">
-      <a href="${link1}" target="_blank">関連リンク1</a>
-      <a href="${link2}" target="_blank">関連リンク2</a>
-      <a href="https://nzworldsearch.github.io/NZWS/" target="_blank">ホームへ</a>
+      <a href="${link1}" target="_blank" referrerpolicy="no-referrer">関連リンク1</a>
+      <a href="${link2}" target="_blank" referrerpolicy="no-referrer">関連リンク2</a>
+      <a href="https://nzworldsearch.github.io/NZWS/" target="_blank" referrerpolicy="no-referrer">ホームへ</a>
     </div>
 
   </div>
-
-  <div class="side-ad">
-    <script src="https://adm.shinobi.jp/s/4afb858c82a32781f7e32122fcce5312"><\/script>
-  </div>
-
 </div>
 
 </body>
 </html>`;
+}
 
-  const blob = new Blob([template], {type: "text/html"});
+function generateHTML(autoNext = false) {
+  const filename  = document.getElementById("filename").value.trim();
+  const genre     = document.getElementById("genre").value;
+  const title     = document.getElementById("title").value.trim();
+  const videoURL  = document.getElementById("video_url").value.trim();
+  const imageURL  = document.getElementById("image_url").value.trim();
+  const desc      = document.getElementById("desc").value.trim();
+  const link1     = document.getElementById("link1").value.trim();
+  const link2     = document.getElementById("link2").value.trim();
+
+  if (!filename || !title) {
+    alert("ファイル名とタイトルは必須です");
+    return false;
+  }
+
+  const html = buildTemplate(title, genre, videoURL, imageURL, desc, link1, link2);
+
+  const blob = new Blob([html], {type: "text/html"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = filename + ".html";
   a.click();
+
+  // 番号をlocalStorageに保存
+  localStorage.setItem('nzws_last_filename', filename);
+
+  return true;
+}
+
+function generateAndNext() {
+  const success = generateHTML(true);
+  if (!success) return;
+
+  const current = parseInt(document.getElementById("filename").value.trim());
+  if (!isNaN(current)) {
+    const next = current + 1;
+    document.getElementById("filename").value = next;
+    localStorage.setItem('nzws_last_filename', String(next));
+    updateFilenameDisplay();
+  }
 }
 </script>
 
