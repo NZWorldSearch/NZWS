@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>NakazawaWorldSearch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin: 0;
+    background: url("haikei.jpg") no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+  }
+
+  .layout {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .side-ad {
+    width: 160px;
+    height: 600px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .main-content {
+    max-width: 900px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ←ここ修正：ロゴ固定サイズ */
+  .logo {
+    width: 200px;   /* 元の大きさ */
+    height: auto;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .video-block {
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 900px;
+    background: rgba(0,0,0,0.5);
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .video-title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .line {
+    width: 90%;
+    height: 2px;
+    background: #fff;
+    margin: 10px auto;
+  }
+
+  .video-block a img {
+    width: 100%;
+    max-width: 450px;
+    height: auto;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+
+  .video-desc {
+    font-size: 22px;
+    margin-top: 10px;
+    color: #f0f0f0;
+  }
+
+  .links {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .links a {
+    color: #49a1ff;
+    font-size: 20px;
+    margin: 10px 0;
+    text-decoration: none;
+  }
+
+  .links a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 900px) {
+    .layout {
+      flex-direction: column;
+      align-items: center;
+    }
+    .side-ad {
+      display: none;
+    }
+    .video-title { font-size: 26px; }
+    .video-desc { font-size: 18px; }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+  
+
+  <div class="main-content">
+
+    <a href="https://nzworldsearch.github.io/NZWS/" target="_blank" referrerpolicy="no-referrer">
+      <img src="NZWS.png" class="logo" alt="logo">
+    </a>
+
+  <!-- ジャンル g e o  -->
+  <div class="video-tag" data-tag="o"></div>
+
+
+    <div class="video-block">
+                                   <!-- タイトル↓  -->
+      <div class="video-title">【激熱】イスラエル君とアレックス君のタイマン</div>
+      <div class="line"></div>
+      <div class="click-hint">画像クリックで再生</div>
+               <!-- 動画リンク  -->
+      <a href="https://packaged-media.redd.it/mwtjx8ywpodf1/pb/m2-res_854p.mp4?m=DASHPlaylist.mpd&v=1&e=1765220400&s=49379c6eb7010150feba5822455834f6f5225835" target="_blank" referrerpolicy="no-referrer">
+                     <!-- サムネ↓  -->
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxISEhUQEhMVExUVFRUVFRUVFRUVFxUVFRUWFhcVFRYYHSggGBolGxUVITEhJSkrLi4vFx8zODMtNygtLisBCgoKDg0OFQ8PFS0dFR0tLSsrKysrLSsrKysrLTcrKy4rLTcrLSstKysrODgwKzg3Nzc3Kzc3LTcrNywtNzc4N//AABEIAUsAmAMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAFAAIDBAYBBwj/xABAEAACAQIEAwUEBgkDBQEAAAABAgADEQQFEiExQVEGEyJhcTKBkdEUQlOSwdIHFSNSVGKToaIXlPAkM3Kx4UP/xAAYAQEBAQEBAAAAAAAAAAAAAAAAAQIDBP/EACERAQEAAgIDAAIDAAAAAAAAAAABAhESIQMxQaHwEyJR/9oADAMBAAIRAxEAPwDw2KKKAopruy+a4NKdNMQlMOr1Lu1AVL0zUwz2fY6iUXEIP3dQ4XuJMozfAA2elTUCpqQtRBIBwlWnZ2IqXAqmkb2a5XVo4gBjYpvcBnGVinj6bJvXq1e4Jw6aUouRoNMg6kZGAa3Cy24m0wUBRRRQFFFFAUUUUBRRS5h6dA0nZ3YVQyhEC3VlKvqYtyIYJtbe5gU4oYy7E4da9NnUGmO8BDLcXYMEJFjcAlTwPDgeEJYnH5eHw7JTJRK6NUU01DGiCveLUsbOzEMQBsAbeG1iGVinuWM7cZYxqaa9LQ1QMqihVUrTAa6AdwV3ui6SbWDG4JBHi2ZVUaq7U10oWJUeV+nL05QK0UUUBTpB+PDz5fgZyaLJMwpU6ariCKgLE0V06/ozcDXYHZgTb9lwbTc2suoM8ykbEWM5J8cG7x9Tio2pr1AxYOb7vqO5vxud95BAUUUUBRTa4PO8vGWPhno/9TuVcLxNx7R4Hnvy26Sjgs2wVMBDQDI6Lr/Zqzh+8pBwHe5X9mlU3RhvWA8JFxmXfx28vjxwmOst7/H7+xmIptaGZZRTIK0XOpCGvT7wqdbXAFWoVBKhLGx0gkEsTqWu2ZZSzEthagGhbaGZfHc6tu8IsBoseuu4NxbTiyUU2gz3LEsKeENtaA6kR27sOGc3qM25FwLWP80cuYZRSFIdwa1+5epYPdWTXqS7ut73UG3hO9gDaBiYoYzVMK4V8Owpaaah6birqqVRfU1O2tQpuNiw4H1IeAooooCikuEdFdGqJ3iBlLpqK61BBZdQ9m4uL8ry5isXh2QqmHKPZLP3zNYqahc6Su+oNTHl3f8ANAHRRRQPqDLqtFNmoUWHnTT5TVYLCYOqLrQo+ndJ8p5+KpEs4THupupIM009AbJ8KBfuKP8AST5TOZpl2GdwwoUhpuARTQXv12llcxq1EAfb04n1kLGZrWOIYcsofY0/6afKNOXUPsaf9NflL7SFhMN6U2y2h9jT+4vyjDl1D7Gn9xflLZkbmFUKmX0fsqf3F+Up18BR+yp/cX5QlUMp4hoQIqYWl9mn3F+UHYzD0h9ROP7q/KEMZUtvA1Wrc3MFWKeHpfuJ91flLC4Sl9mn3V+UG0a0v0q0iG4uhSUDwJ91flNdl2X0NC/sqZ2G+hflMliQG2MIdnseaJFFzdWPgboehnSYdO3xsKeWUPsaX9NPlLdLKsP9jS/pp8pDhnhKlMsIv1Th/sKX9NPlOS8IpEWM3yGjWBJGhv3ht8ZlMFlYpsSTqsdvnNDjsyNTZdl/9we03tzxxK8axiMYxmLXRxjIcRWCKWY2AjcZilpjUx93WZPMce1U3PDkIQVw+cq7FT4d/Cesva5jmhbKMU5BVtwODfgZaSilZoJx2IAk2PxoXbiYArVCxuZBFiKpYkmUqstMJDUECrqlijXlN3F40PaAWD3N5cpEHYwRQrS9QqTvh264trkmL1DSTutt+o5GaHDVJ53g8d3VRXPsnwt5A8D8ZtsDXBsQbgzOcTKC4eKQq8U5MM7hs1a9mUqYTWveDsHh2GzNq6X4wgoipDtUr43GLTXUx9B1krGUMwy5avtXB5EGBnMdjWqtqPuHSUiYSxWTVE9k6h/ecwOXk7uLAcjzlRFgsEzm52XrL2LrCmuhJ3F40KNKwQ7E7mKGVd9zITJSYx7SKgcShiq44CTYqoTsIKrg3tC6QvV3jleV6kaj7yppep1IRw9WBw0no1rS43VWVoqbXFoc7OZjpPcsf/D06TK4WtLoa9iDYjcGd7/aOnt6Xh620UBZNmfepfgw2Yec5ONwTiMBbTt5wtGF5hzM7/xabH15TrPGs8grVQBeTYdWeBsfjb+FY3G4/VsNhKBiBhMaY8zkIhY23MpVXLmwl6tTuLTmUoNRU+1ylCweX8zKWd5fp8YG3OaGpUVB4iB6mBcxzWm10VgYagAyB1tzEp4fBs5sohTK8mqYmpopcdySeAA6zQZllD4CjqcqzHpLF90Dw+Qt9ZhO4jJgovr91hBFTtDUJ9raMbOieJvLprLjF2hWttL9LEzO0sZqawBJmhwmCNgW2HSa5cUx79CmWYtkbWoJ6+cUlw1QKLDaKY/mduLdExjGJmlPE4oKN5h5j69YKLmBMdjS+w4SLF4sufKVxKFednCIoRwzkcREIDDKGYVe7HeA2I4esIkSjmmF7xLRtWRx+OeoxZiTG4DCPVdUUEsxAAHnC1bLAlrz0H9FmRjx4pl/kpk/5Ef2E1uLxaDsb2bXA0LNZqjG7t+A8plf0p/tEJ4WG09HzB7C0847d0Hek5UXsJYm3jlWWsty96x0qPfyEZVw506+V7e+GeyGcLSqCm9gpOzdD0M1b0k9j2WZItBd926ydmJNocxrqyXvAIq2N55bbb29WOpEtWkVFz8IpXqVSxik0u24x+NCDf4TP4jElzeU6eJNUamN7ydFnZ5SEeBHrSndERDbTumPWnfaEsPhAo1NYRoVaGE5mVsVS0nbhCH0pWcpqtYXI4G3ykNDELWLKgJVdtVvCT0XrLoDoiJNXp6TaRGZqh+Y0C1rcp6d2Kq/9PTQEeFbEdDMBeFuz+cNh3sd0bj5HrLF23+PFzaCMxy4OjKRcEEQjTxQqAOpuJNo2tNsvAu03ZSrQ1FCWpk3I5g+cyDbe6fRuLwwZ2UgTDdov0aNVqGrQdVLblTw91pRl+zubs690xuV4X4kQp3ZJkmXdk/o7eMePry90KnAnkJzzx76dJkoJSsJ2XMVjKOFGqqQW5KNz8JyY0vJWYaBcDwjjbkOsJYRAwuIQoYEHiLys2GahU28SNyF9j5CdHJOtGJqEs6SSAilt97DYe+S4yibdLSxMug/2eEs0Kyvx30wRi3LDZtK82gipnWg/s+A2v1PWVnHdGu4bEOX0d2nA7WdwP3jyHlCgtTAUCw5ARmSJVNO9Ugk7i3IHkZItIsx1cBwk268LEFeiHF4BxrsuwE14QAQdmGEDcpKAeEBO5lm0lWnbacZZmgnkOaGm2lidJ/ses3WFYMLg3nlxmy7F4rUjITup262MsqDT4QFyZLUCqN4q2ICjzgTMcaBdnO03sQZiitueUw/aHO2oqe6XUeF+S+ZhbMszL7DZf8AnGA6u5MxarCVK7Vn1VGuTzMUP5tkgfxUxZr78gYo6Tt6qigCOTC99/Kl735kjp853A4B3IZ9hyXr6zSUKAA3t+A9JEV6GFAUKNgOAkOLwAIhIxt5pm1g8/yv9lU0WvbZTwvPKKjm+ljYXsZ7z2hywVUI3F+Y5HrPPsX2Ypmoqd2zHYu9yq25gecZWSbq4LWWZkRTVQ+qwAv5S3RzymjhajadewPK+3HpMHn9N8PWakl6a8VFwTpPC5gc1GY3Yk+pmsfFubldsvJ8e1lr8JFUmYp1K2ERC7ipTNrne63HLyh+lUDgEG45TF3GKrVF3kTpLzLK9QTOxSZZcyXGNRqalPEWMrOJxKgVgWNtwIg0OOzdgDwvM9isWznc3k2Z1OUFNVAFzyi0SPItMkwdJ6gJIKrbY8CfMSnk2R1qbs1V9Sm9hcnnxN+Egs6IpbbDeU7A9ISty2vz8pMlYHgYE7wnYbDmT+PWT0WvwJsPdedGKv1cRyG8ZTeVa4tuOXTnO02J8oReJgnHYax1cpeDyDGVVCksbAczJZL1VjyH9IdIjFaiNmUaT1txmX1T0Ptwvf0SUW/dtqB5kcD/AM8pjezGA72sCfZQ6j5kcB8Z6McpMNEm61Pa6v3eERGG5CD0NheR9g83DoaDHxLutzuQeI934wR2/wAXqNNPImZfDVipupsRuCOUxMNxrO9vamkLwH2QzeriFKuLldg/73W8t5y+IH7OnTO/1uI/+TjcdVNmZlmKU9uLdB+Mo4PLauIYVKt1XiF4QhlWQ6Trq+Jjv1Ah9KNpVBcYo4RuEwKvuwuByjsdhmBLcoUyujamPOYV1aW1pxqUtkSB5RTqLFJmpxSjQNQvJxtOxjS+3M8vGa4y8EZpnCp4UIZ/7D1gX8dmK0hdjvyHMzOYjEvXa7bLyWQKjO2pySTJTWVXWl9YqW9ALDf4yrpMUAU3G1t/SY7D5phFLLSulzc3GxmzYzzntNlJTEFraEcjSQPDc8vKXHsl1QfO8Z3tUtyGw9BGZTgWrOEXbqeQHWGcu7MtWXWXCi5FgLnY23mjwGVpQXSm3Unix8515zGdJ7on2dw60E24AWH4n3wq+YAwZl2H7wkA2tCiZQvNif7Tz22+24r1ceALyumf6eI2vCrZXTOxEE5x2fIGqlcjmOY9JK1NL+PrKyBlNwdxLeXG9NfSZ/Ase4seKkiEMuzSkqhGYK3Dfn6TILMJGaUnDC17zjMBKitoijKleclGh1SKrVCgsxAA4kypjcelJdTG3Qcz6TK4vG1MQd/CnJfnNua/medtUulHYcC3M+kDYmutEAWL1G9lBuzH8B5wphMJG46rh8LetUsrEWvxY25LLoU6FN6KticS9iBcU1PgXoP5mlXs9jVqvUdrisT4lOxCfVAHS0ynaDtG+Ja3s0wdkB4+bHrFg6nCqtQ96oGkb2sPqHrtGl29Eq1gouTYTL59mArL3YHhve/O45iD8RmzVd3NrcVAO3rKGJxW4085ZASyvN1wzsWBYMoFh+8BxhP9fYepvq0E8m2/vMXiWu28hVWPsgmW47I9V7P4gAncENwImhDTyPJM5fDmxGocbXtYz0fIs7o4gDSw123Q+0PdznO4rKMKZIDGKI9RM6UEzpbXsLekyOLwbs4a3hBvf8Jqe09YoAb2FjyvBOUYrvEa4tvteFVqWa2bTcj3y5Qxrs1gDbmZ1sAh4gQng8FtsNoQqKExQrQw1oo0MkrPWfVUbUenT3Qxh8PYQB2dyxcPqepVDv8AWa/hHoTx9YN7Q9s+NPDehqfl+c6aYarHZqEJp0gHqAb7+FPNz+E8yz3FPUrMz1O8PC49keSjpIBmNXSUDmzG7fzHzPOFci7OVK51HZevWanQG5dl1Su2mmpPnyHrN/k/Y5aa6mN6lrjoD6S7kWF0UlNIBSLqy8tSmxv5zRZbVDcQQRxB/CTa6Yjttg0oqHA0VKos6j2SBzt1uRMbpsNvdNB25zX6TXKgFVp+EA897k++A1M1jEqtUpat+EelTQLKY6qF6SlUsOcqS2ejzUubkx+HxRRw6mxBuD0MpvFTMJt7V2bz1MTS1DZlsHB624+hhXvp452UzX6PiFJNkbwt7+BPoZ6tfnOWU7blBu1WPZCNKar8NrgfhBmFxD2uxuTysBby2mor0Q4sZWpZUgN+MypZZhy3iPuhlRaRUgALDlH6oVLqikWqKQeQY/EPU9o2Xko4f/YMqYYco+rXkRqz2cXDa3Typ1KMRcPuhG4uPqtbhPTMlr66akp3ZAsV6enlPMcJm1SmLK23Qi4mhwXai6biz8NpjKLK2CYlKdVrEWcXIHJ12v7xb4QzhKnh1dd/dPO8rVqrgm4W+58ppMzzJiyUaY0oTYnmQBwHlOTo87zpymIqi9/2j/dLXB/vKjVucJ9uaYSvqH1kBI6EbTKvUPWbjNFLsZzuhBOs9TJsObneVE+IaR0jFWMbRhEpM9X7G5ga2FQningPu4H4TyebDsFmQpl6bmytYj/y4TNaxejLHapAHndU5tp9U6GkGqODQJrzshDxQPCy8a1SMvGMZ6nB16kt5RUBqKGNgTa54bwc0dTMlHsWBwoRQBa0gzWqiGm31g1x6EWnnOExuIQWV3CniL8vLpDzZn3oAUaQvLifeecxx06SgvaHFmrVZj1sPQQPUXaWcY93a/UyCofDCVBJaDWkYEfTW5tCJKhnKRl1qSgWG5lECxtAmms7MdnGrUu+1aCG8NxsQJkqKljYT0fs5mBpKtJ9lttflfmOokqxp0vYXjrzga4uI285uiS87qkV50GQCO0WeGhZFHiIvqPAe7mYpU7aUL01e19LW+MU6yTQ8vLRV6TIQGVlJFwGUrcdRfiId7D1aS4ymarKmzim7+wlYqe7Z9xtfnyJB2tcei/pXxOEbBrTVlaqSjUh4Sb6rs/h3UaAVN+N1nLPz3Hy4+PXvX5/zr59cuLx+jhi3lL1HDqu/OanDNllMc6gZmJ1rU1Ki1VIVQpWzGizC521LfhB2M+hd3qTvdWvSAGBJVaQJqMCBpvUa1uiGelkJarOLWI4G00eKOVPrYFqZ07BRU0g6lUadQu9gzFr2PhFtW5MdA5SrAlqzAO53V7FBUBpgrbclLg7j47QOvkVLFUlqU301Au4tsSOvT1mNxS6To5i4PrNZluZ4WjUZ6epQaJ8FTWymoUSyqybiz6/EwIsOpuOV8TlZ1eFAxen+07vElCB3eo90SCP/wBrjVv4N2uSM1rbHAxytJMeyGrUNMBaZdygGohULEqAWANgLDfeMoEAgmZF7dVueMpXuZNia2o7S9k+XFyCeEqyL+SZfYaiNzN6uXLWoIDswHhboflANKmFFhNJlDqaQKG/G/qOIma1IG5ViKtEtTrcNVh0tbiPKHQb7wNmya6ype10uPW5jMHi2pN3b8P+biYaHJzVI1qg7iNZ4Eea0e8pOnMqbevKcju9il2POcbgqb1BSw1Mud7AXYtYEmw6AAn3SkMFUBYd2wKi7DSfDfTx6e2v3hHYTHPRfvKZAYK6gkA2FSm1NjY7Xs5tfnaFl7X4q1iUbwCmSwclltY38VtR38dtW534W7uFBQp5A/A+XzHxE7Rw1RyFRGYm5AAPBQWJ9wBPpC+D7V16NOnSp6QKakAtdiWJfxbEDZXChTcAKDxAIgr9pK7sjeBe7R6aKgYKFqU+6bYsSTp5k8oA5sFU3tTc6SFNlJsxJAG3UqR7pA1NgbFSDuLEEG4Oki3rt6zS4vtxiCqhQqEFi5uTrZqYpbLsFUKNl3333PGg/a7EmotUd2GRaijwsbiowbfUxJ0sqld9iogC2oOLXU+LcbHe9z/6B+EZiMMynS6lTsbEW4i4+Ih5O3GLG9qWzM3sNsWVlIHj8Is3Kx2XewtKGbZ/UxCU6dQDwFjcfWuAFFuQUarcd6jnmAIAj0iI0S0HjDSudpLFS5bhu8cKTYTa4SiqDSJnMrwIQ63NoQxGa8k49T8pluCOYYoUkLE7ngIM7M9oGpPoY+Bzv5HrKmsVQVckN5/gfwgqtSKNYzKvQnxd8QCeSfiZdxBWoLc+RmNyfFFrk8gBfy3h/L8RcAyKuYXFFDoaEDUvBuIsw85Xo4oqdLSAsXilPvooGKyDLxicVRwxbQK1VKeoC+nUbXtzhLtf2MxWXPasuqmxsldLmmx42P7jW30nobE2JmYyLPnw2Jo4kKHNGotTSdg2k3sTylvtP21xmYVO8xFS4HsU1FqdP/wS/HzNz5ztycjsNgK1UE0qNWqAbE06buAeNiVBsZKclxf8Lif9vW/LM/8ATX6zhxr9Y5IMtkWM/hMT/Qq/li/UOM/hMT/Qq/lgT6S3WL6S3WOSjf6hxn8Jif8Ab1fyzv6ixn8Jif8Ab1fywH9JbrF9IbrJyG5zr9HeOwuDXH1lQUzo1IGPe0xUIVNalQOLAEAkgkedsqt+h+BhLMu32YYjCJgKtbVRTSLaV1MEsUDvxYCw+AveZ36Q0cgV7xjxv/eWKRgMYlpKMwcdPhM1qUbqC4uOI3EZizrS9vEIKXNKg6fCR/T334b8dpNLyaDIQxJUDclRxt14k8JqqWX1ECg6RcgDxoNybC9zzsSPIE8J5xhc0q0zdDpNwQbDYiXz2sxZFjUuAb7qON9W9uO+4HLlaNHJu6qsoBNtywG4O6GzAgcOI4wxlnZWpicNVxZZUp00cruLu6j2d7BV6sTPKn7UYk7FgdyfZHFrXPvsIbyX9JmNw9Cthrq1KrTdVFgppOw/7qMBe4PI7bcpNFyHMQlSg5o1l0OtrqSCRcAi9jxsRtFMNiO0uIqHU7BjsLsLmwFhufIRRo2EKJfy7LWqgsWSkgIXvKhspc+ygNiST8ALk2EoKYVyPOXwxOxdDpbu9bKutHR0ew5goPdcbTTCBMqxBdqQpMXQgMoW5BY2HDjcnb4yPGYCtSt3lNk1FgNS2uVNmt6G3xk+FzjE03aotQ63tqdgrsdJDDxOCeIHrYTmZ5viMRpFZy+gsV2UW1m7cAOJA9ICyjKnxDFUKLbSLtcAs7qiKLA7lmA6dSJQG8K5VnL0Vamy95TLiqqF3QLWX2XupBtsLjmAOBAIo4zFvVqNWqtrdyWYm1yT6bAeXLhAjo0ixVVGpmICjqSbAfGXMVlpRWdalKoEIV+71HQTsL6lAIuCNS3HnuL1sDiO7qU6g403VrXtfSwbjylzGZghV0o0RSFRgX8RckA3CLcDSt9+uw3gVq2BqovePTZVuouVsLsodfipB98qsIQxucYisuipU1KSGNwoJIFgSQLnb58YPYwORRRQFFFFAUdGyfC1Qro5UNpYEq3ssAb6T5HhAs4nKq1OktZlsrWNvrKCSFZl4hW0tY8DaRYrAVaQvUpsgva7KQL2BtfrY8JazHOalYEFKaaiS7U10tUGouFqNe7gE3udzYFixAIhzDNK9f8A7r6uB4KPZFhwA5GBRIiiYxQORRRQFFFFAUUUUDT4P9HuaVaaVaeDqsjqHRvCNSsLgi55iTf6Z5v/AANX/D80zaY+qoAFWoAOADsAPQXnf1lX+2qffb5wNH/pnm/8DV/w/NF/pnm/8DV/w/NM5+sq/wBtU++3zi/WVf7ap99vnA0f+meb/wADV/w/NF/pnm/8DV/w/NM5+sq/21T77fOL9ZV/tqn32+cA9i/0eZrSRqr4OqqIpZj4TZVFybA32AmXll8fVIINWoQdiC7EH1F5WgKKKKAooooCiiigf//Z" alt="video1">
+      </a>
+
+      <div class="line"></div>
+                                 <!-- 解説＆タグ  -->
+      <div class="video-desc">勝者アレックス君！#喧嘩</div>
+    </div>
+
+  
+
+    <div class="links">
+      <a href="https://example.com/link1" target="_blank" referrerpolicy="no-referrer">関連リンク1</a>
+      <a href="https://example.com/link2" target="_blank" referrerpolicy="no-referrer">関連リンク2</a>
+      <a href="https://nzworldsearch.github.io/NZWS/" target="_blank" referrerpolicy="no-referrer">ホームへ</a>
+    </div>
+
+
+
+</div>
+
+<script id="dsq-count-scr" src="//https-nzworldsearch-github-io.disqus.com/count.js" async></script>
+
+</body>
+</html>
+
+<script>
+  // ページ内の video-title を取得
+  const titleElement = document.querySelector(".video-title");
+
+  // 存在していれば document.title にセット
+  if (titleElement) {
+    document.title = titleElement.textContent.trim();
+  }
+
+</script>
