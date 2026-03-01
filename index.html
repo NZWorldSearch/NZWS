@@ -298,7 +298,7 @@
 
 <img src="NZWS.png" class="logo">
 <div class="subtitle">世界の不思議さがそう</div>
-    <div class="subtitle">何も表示されな場合再読み込みしてみてください</div>
+    
 
 <div class="top-bar">
     <div class="genre-menu">
@@ -355,7 +355,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     let allData = [];
     let allTags = new Set();
-    let fileNumbers = [];
     let currentCheck = 1;
     let activeTagFilter = null;
     let currentActiveFilter = "all";
@@ -363,50 +362,71 @@ document.addEventListener("DOMContentLoaded", async () => {
     let displayedCount = 0;
     const itemsPerPage = 16;
     let isBatchLoading = false;
+    let scanFinished = false;        // ファイルスキャンが終わったか
+    let knownFileNumbers = [];       // スキャン済みのファイル番号一覧
 
-    // ファイル検知
-    async function detectFiles() {
+    // ★ 変更点：スキャンと表示を並行して動かす
+    // バックグラウンドでファイルを1つずつ検出しながら
+    // 16個溜まり次第すぐ表示を開始する
+    async function scanFiles() {
         while (true) {
             try {
                 const response = await fetch(`1/${currentCheck}.html`, { method: 'HEAD' });
                 if (response.ok) {
-                    fileNumbers.push(currentCheck);
+                    knownFileNumbers.push(currentCheck);
                     currentCheck++;
-                } else { break; }
-            } catch { break; }
+
+                    // 最初の16個が揃ったら即座に最初のバッチを表示
+                    if (knownFileNumbers.length === itemsPerPage && displayedCount === 0) {
+                        loadNextBatch();
+                    }
+                } else {
+                    break;
+                }
+            } catch {
+                break;
+            }
         }
-        fileNumbers.sort((a, b) => b - a);
+        // スキャン完了 — まだ初回表示が終わっていなければここで表示
+        scanFinished = true;
+        if (displayedCount === 0 && knownFileNumbers.length > 0) {
+            loadNextBatch();
+        }
     }
 
     async function loadNextBatch() {
-        if (isBatchLoading || displayedCount >= fileNumbers.length) return;
-        
-        isBatchLoading = true;
-        scrollMsg.style.display = "block"; // 下部の読み込み中を表示
+        if (isBatchLoading) return;
 
-        // 読み込み中をあえて0.5秒見せる
+        // まだスキャン中で表示できるファイルが残っていない場合は待つ
+        if (displayedCount >= knownFileNumbers.length) return;
+
+        isBatchLoading = true;
+        scrollMsg.style.display = "block";
+
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        const nextBatch = fileNumbers.slice(displayedCount, displayedCount + itemsPerPage);
-        
+        // knownFileNumbers は新着順（降順）に並べてから使う
+        const sorted = [...knownFileNumbers].sort((a, b) => b - a);
+        const nextBatch = sorted.slice(displayedCount, displayedCount + itemsPerPage);
+
         const promises = nextBatch.map(async (num) => {
             const page = `1/${num}.html`;
             const item = document.createElement("div");
             item.className = "item";
             item.setAttribute("data-page", page);
-            item.style.display = "none"; 
+            item.style.display = "none";
             gallery.appendChild(item);
-            
+
             await loadItemData(item, page);
-            applyFilterToItem(item); 
+            applyFilterToItem(item);
         });
 
         await Promise.all(promises);
-        
+
         displayedCount += nextBatch.length;
         isBatchLoading = false;
-        scrollMsg.style.display = "none"; // 終わったら非表示
-        
+        scrollMsg.style.display = "none";
+
         updateTagListUI();
     }
 
@@ -529,12 +549,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // 最初にファイルをスキャンして16枚出す
-    await detectFiles();
-    await loadNextBatch(); 
+
+    scanFiles();
 });
 </script>
 
 </body>
 </html>
-
